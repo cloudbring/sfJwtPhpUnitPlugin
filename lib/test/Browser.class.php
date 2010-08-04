@@ -13,7 +13,7 @@ class Test_Browser extends sfBrowser
    *
    * @param string $selector
    *
-   * @return array(string)
+   * @return array(sfDomCssSelector)
    */
   public function select( $selector )
   {
@@ -22,11 +22,14 @@ class Test_Browser extends sfBrowser
 
   /** Returns JSON-encoded content from a request as an object.
    *
+   * @param bool $assoc If true, JS objects will be converted to associative
+   *  arrays instead of stdClass instances.
+   *
    * @return mixed
    */
-  public function getJsonResponse(  )
+  public function getJsonResponse( $assoc = false )
   {
-    $res = json_decode($this->getContent());
+    $res = json_decode($this->getContent(), $assoc);
 
     if( is_null($res) )
     {
@@ -47,7 +50,7 @@ class Test_Browser extends sfBrowser
   {
     $res = @unserialize($this->getContent());
 
-    if( $res === false and $this->getContent() !== 'b:0;' )
+    if( $res === false and $this->getContent() !== serialize(false) )
     {
       throw new Exception(sprintf(
         "Invalid serialized content:\n\n%s",
@@ -98,7 +101,7 @@ class Test_Browser extends sfBrowser
       $this->getContext()
         ->getActionStack()
         ->getLastEntry()
-        ->getActionInstance();
+          ->getActionInstance();
 
     foreach( $Action->getVarHolder()->getAll() as $name => $value )
     {

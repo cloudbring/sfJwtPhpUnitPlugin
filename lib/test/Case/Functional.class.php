@@ -14,9 +14,11 @@ abstract class Test_Case_Functional extends Test_Case
     MSG_STATUSCODE      = 'Browser returned HTTP status %d.',
     MSG_FORWARD_MODULE  = 'Browser is forwarded to %s module.',
     MSG_FORWARD_ACTION  = 'Browser is forwarded to %s action.',
+    MSG_NOT_FORWARDED   = 'Browser is not forwarded.',
     MSG_REDIRECT_MODULE = 'Browser is redirected to %s module.',
     MSG_REDIRECT_ACTION = 'Browser is redirected to %s action.',
-    MSG_REDIRECT_RAW    = 'Browser is redirected to URL: %s.';
+    MSG_REDIRECT_RAW    = 'Browser is redirected to URL: %s.',
+    MSG_NOT_REDIRECTED  = 'Browser is not redirected.';
 
   protected
     $_browser;
@@ -61,6 +63,13 @@ abstract class Test_Case_Functional extends Test_Case
    */
   public function assertForwardedTo( $module, $action, $msg = null )
   {
+    /* Check to see if request is forwarded. */
+    $Stack = $this->_browser->getContext()->getActionStack();
+    if( $Stack->getSize() < 1 )
+    {
+      $this->fail(self::MSG_NOT_FORWARDED);
+    }
+
     if( $msg === null )
     {
       $msg = array(
@@ -73,7 +82,7 @@ abstract class Test_Case_Functional extends Test_Case
       $msg = array($msg, $msg);
     }
 
-    $Entry = $this->_browser->getContext()->getActionStack()->getLastEntry();
+    $Entry = $Stack->getLastEntry();
 
     $this->assertEquals($module, $Entry->getModuleName(), reset($msg));
     $this->assertEquals($action, $Entry->getActionName(), next($msg));
@@ -96,35 +105,42 @@ abstract class Test_Case_Functional extends Test_Case
   {
     $destination = $this->_browser->getResponse()->getHttpHeader('location');
 
-    if( $action )
+    if( $destination )
     {
-      if( $msg === null )
+      if( $action )
       {
-        $msg = array(
-          sprintf(self::MSG_REDIRECT_MODULE, $module),
-          sprintf(self::MSG_REDIRECT_ACTION, $action)
-        );
+        if( $msg === null )
+        {
+          $msg = array(
+            sprintf(self::MSG_REDIRECT_MODULE, $module),
+            sprintf(self::MSG_REDIRECT_ACTION, $action)
+          );
+        }
+        elseif( ! is_array($msg) )
+        {
+          $msg = array($msg, $msg);
+        }
+
+        list($route, $params) =
+          $this->_browser->getContext()->getController()
+            ->convertUrlStringToParameters($destination);
+
+        $this->assertEquals($module, $params['module'], reset($msg));
+        $this->assertEquals($action, $params['action'], next($msg));
       }
-      elseif( ! is_array($msg) )
+      else
       {
-        $msg = array($msg, $msg);
+        if( $msg === null )
+        {
+          $msg = sprintf(self::MSG_REDIRECT_RAW, $module);
+        }
+
+        $this->assertEquals($module, $destination, $msg);
       }
-
-      list($route, $params) =
-        $this->_browser->getContext()->getController()
-          ->convertUrlStringToParameters($destination);
-
-      $this->assertEquals($module, $params['module'], reset($msg));
-      $this->assertEquals($action, $params['action'], next($msg));
     }
     else
     {
-      if( $msg === null )
-      {
-        $msg = sprintf(self::MSG_REDIRECT_RAW, $module);
-      }
-
-      $this->assertEquals($module, $destination, $msg);
+      $this->fail(self::MSG_NOT_REDIRECTED);
     }
   }
 }
