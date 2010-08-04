@@ -75,4 +75,48 @@ class Test_Browser extends sfBrowser
   {
     return $this->getResponse()->getContent();
   }
+
+  /** Returns the message of an uncaught exception, if one exists.
+   *
+   * @return string
+   */
+  public function getError(  )
+  {
+    return
+      $this->checkCurrentExceptionIsEmpty()
+        ? ''
+        : $this->getCurrentException()->getMessage();
+  }
+
+  /** Returns the sfForm instance from the action stack.
+   *
+   * @return sfForm|null
+   */
+  public function getForm(  )
+  {
+    $Action =
+      $this->getContext()
+        ->getActionStack()
+        ->getLastEntry()
+        ->getActionInstance();
+
+    foreach( $Action->getVarHolder()->getAll() as $name => $value )
+    {
+      if( $value instanceof sfForm and $value->isBound() )
+      {
+        return $value;
+      }
+    }
+
+    return null;
+  }
+
+  /** Returns the email logger from the browser context.
+   *
+   * @return sfMailerMessageLoggerPlugin
+   */
+  public function getMailer(  )
+  {
+    return $this->getContext()->getMailer()->getLogger();
+  }
 }
