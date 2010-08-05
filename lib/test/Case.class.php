@@ -116,9 +116,16 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
   /** Flush the database and reload base fixtures.
    *
+   * @param bool $rebuild
+   *  true:   The database will be dropped and rebuilt.
+   *  false:  The method will try just to flush the data.
+   *
+   * Note that the first time flushDatabase() is called (per execution), the
+   *  database will be rebuilt regardless of $rebuild.
+   *
    * @return Test_Case $this
    */
-  protected function flushDatabase(  )
+  protected function flushDatabase( $rebuild = false )
   {
     $this->getAppConfig();
     if( sfConfig::get('sf_use_database') )
@@ -131,7 +138,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
        *
        * After that, we can simply truncate all tables for speed.
        */
-      if( empty(self::$_dbRebuilt) )
+      if( empty(self::$_dbRebuilt) or $rebuild )
       {
         $db->dropDatabase();
         $db->createDatabase();
