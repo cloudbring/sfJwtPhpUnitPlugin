@@ -23,6 +23,14 @@ abstract class BasePhpunitTask extends sfBaseTask
       ),
 
       new sfCommandOption(
+        'groups',
+        'g',
+        sfCommandOption::PARAMETER_REQUIRED,
+        'Only run tests from the specified group(s).',
+        null
+      ),
+
+      new sfCommandOption(
         'verbose',
         'v',
         sfCommandOption::PARAMETER_REQUIRED,
@@ -145,6 +153,7 @@ abstract class BasePhpunitTask extends sfBaseTask
     $allowed = array(
       'colors'      => true,
       'filter'      => null,
+      'groups'      => null,
       'verbose'     => false
     );
 
@@ -159,6 +168,12 @@ abstract class BasePhpunitTask extends sfBaseTask
       {
         settype($val, gettype($allowed[$key]));
       }
+    }
+
+    /* Special case:  groups has to be an array. */
+    if( isset($params['groups']) )
+    {
+      $params['groups'] = preg_split('/\s*,\s*/', (string) $params['groups']);
     }
 
     return $params;
