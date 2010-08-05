@@ -21,13 +21,46 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $_dbRebuilt,
     $_dbNameCheck,
     $_dbTableNames,
-    $_uploadsDirCheck;
+    $_uploadsDirCheck,
+    $_defaultApplication;
 
   protected
-    $_application = self::DEFAULT_APPLICATION;
+    $_application;
 
   private
     $_fixtureLoader;
+
+  /** Accessor for the default application name.
+   *
+   * @return string
+   */
+  static public function getDefaultApplicationName(  )
+  {
+    return
+      empty(self::$_defaultApplication)
+        ? self::DEFAULT_APPLICATION
+        : self::$_defaultApplication;
+  }
+
+  /** Sets the default application name.
+   *
+   * @param string $application
+   *
+   * @return string old value.
+   */
+  static public function setDefaultApplicationName( $application )
+  {
+    if( empty($application) )
+    {
+      throw new InvalidArgumentException(
+        'Empty argument passed to setDefaultApplicationName().'
+      );
+    }
+
+    $old = self::$_defaultApplication;
+    self::$_defaultApplication = (string) $application;
+    return $old;
+  }
 
   /** (Global) Init test environment.
    *
@@ -153,6 +186,11 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   protected function getAppConfig(  )
   {
+    if( empty($this->_application) )
+    {
+      $this->_application = self::getDefaultApplicationName();
+    }
+
     if( ! isset(self::$_appConfigs[$this->_application]) )
     {
       if( sfContext::hasInstance($this->_application) )

@@ -50,16 +50,16 @@ abstract class BasePhpunitTask extends sfBaseTask
    */
   protected function _runTests( $type = '', array $options = array() )
   {
-    /* Run the global bootstrap file, if one exists. */
+    $basedir = sfConfig::get('sf_plugins_dir') . '/sfJwtPhpUnitPlugin';
+    require_once $basedir . '/test/bootstrap/phpunit.php';
+
+    /* Run the project bootstrap file, if one exists. */
     $init = sfConfig::get('sf_root_dir') . '/test/bootstrap/phpunit.php';
     if( is_file($init) )
     {
       $Harness = new Test_Harness($init);
       $Harness->execute();
     }
-
-    $basedir = sfConfig::get('sf_plugins_dir') . '/sfJwtPhpUnitPlugin';
-    require_once $basedir . '/test/bootstrap/phpunit.php';
 
     /* Do not list infrastructure directories in test failure backtraces. */
     $blacklist = array(
