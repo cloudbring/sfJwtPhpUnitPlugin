@@ -7,8 +7,7 @@
 abstract class BasePhpunitTask extends sfBaseTask
 {
   protected
-    $_type   = '',
-    $_extras = array();
+    $_type   = '';
 
   public function configure(  )
   {
