@@ -33,8 +33,8 @@ abstract class BasePhpunitTask extends sfBaseTask
       new sfCommandOption(
         'verbose',
         'v',
-        sfCommandOption::PARAMETER_REQUIRED,
-        'If set to 1, PHPUnit will output additional information (e.g. test names).',
+        sfCommandOption::PARAMETER_NONE,
+        'If set, PHPUnit will output additional information (e.g. test names).',
         null
       )
     ));
