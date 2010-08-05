@@ -16,14 +16,6 @@ abstract class BasePhpunitTask extends sfBaseTask
 
     $this->addOptions(array(
       new sfCommandOption(
-        'application',
-        'a',
-        sfCommandOption::PARAMETER_REQUIRED,
-        'Run tests from the specified application.',
-        'frontend'
-      ),
-
-      new sfCommandOption(
         'filter',
         'f',
         sfCommandOption::PARAMETER_REQUIRED,
@@ -58,37 +50,13 @@ abstract class BasePhpunitTask extends sfBaseTask
    */
   protected function _runTests( $type = '', array $options = array() )
   {
-    /* Ensure we have an application configuration.
-     *
-     * Note that the application option is required (but defaults to
-     *  'frontend').
-     */
-    if( ! sfContext::hasInstance() )
+    /* Run the global bootstrap file, if one exists. */
+    $init = sfConfig::get('sf_root_dir') . '/test/bootstrap/phpunit.php';
+    if( is_file($init) )
     {
-      $init = sfConfig::get('sf_root_dir') . '/test/bootstrap/phpunit.php';
-      if( is_file($init) )
-      {
-        $Harness = new Test_Harness($init);
-        $Harness->execute();
-      }
-
-      if( $this->configuration instanceof sfApplicationConfiguration )
-      {
-        sfContext::createInstance($this->configuration);
-      }
-      elseif( $this->configuration instanceof ProjectConfiguration )
-      {
-        sfContext::createInstance(
-          $this->configuration->getApplicationConfiguration(
-            $options['application'],
-            'test',
-            true,
-            sfConfig::get('sf_root_dir')
-          )
-        );
-      }
+      $Harness = new Test_Harness($init);
+      $Harness->execute();
     }
-    unset($options['application']);
 
     $basedir = sfConfig::get('sf_plugins_dir') . '/sfJwtPhpUnitPlugin';
     require_once $basedir . '/test/bootstrap/phpunit.php';
@@ -176,7 +144,6 @@ abstract class BasePhpunitTask extends sfBaseTask
   protected function _validatePhpUnitInput( array $args, array $opts )
   {
     $allowed = array(
-      'application' => 'frontend',
       'colors'      => true,
       'filter'      => null,
       'verbose'     => false

@@ -10,14 +10,21 @@
 abstract class Test_Case extends PHPUnit_Framework_TestCase
 {
   const
-    ERR_HEADER = '*** Halting execution to prevent corrupting production data! ***';
+    ERR_HEADER =
+      '*** Halting execution to prevent corrupting production data! ***',
+
+    DEFAULT_APPLICATION = 'frontend',
+    DEFAULT_ENVIRONMENT = 'test';
 
   static private
-    $_appConfig,
+    $_appConfigs = array(),
     $_dbRebuilt,
     $_dbNameCheck,
     $_dbTableNames,
     $_uploadsDirCheck;
+
+  protected
+    $_application = self::DEFAULT_APPLICATION;
 
   private
     $_fixtureLoader;
@@ -80,94 +87,110 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   protected function flushDatabase(  )
   {
-    self::verifyTestDbConnection();
-
-    $db = self::getDbConnection();
-
-    /* The first time we run a test case, drop and rebuild the database.
-     *
-     * After that, we can simply truncate all tables for speed.
-     */
-    if( empty(self::$_dbRebuilt) )
+    $this->getAppConfig();
+    if( sfConfig::get('sf_use_database') )
     {
-      $db->dropDatabase();
-      $db->createDatabase();
+      $this->verifyTestDbConnection();
 
-      Doctrine_Core::loadModels(
-        sfConfig::get('sf_lib_dir').'/model/doctrine',
-        Doctrine_Core::MODEL_LOADING_CONSERVATIVE
-      );
-      Doctrine_Core::createTablesFromArray(Doctrine_Core::getLoadedModels());
+      $db = $this->getDbConnection();
 
-      self::$_dbRebuilt = true;
-    }
-    else
-    {
-      if( ! isset(self::$_tableNames) )
+      /* The first time we run a test case, drop and rebuild the database.
+       *
+       * After that, we can simply truncate all tables for speed.
+       */
+      if( empty(self::$_dbRebuilt) )
       {
-        self::$_dbTableNames = array();
-        foreach( $db->execute('SHOW TABLES') as $row )
-        {
-          self::$_dbTableNames[] = $db->quoteIdentifier($row[0]);
-        }
-      }
+        $db->dropDatabase();
+        $db->createDatabase();
 
-      $db->execute('SET foreign_key_checks = 0');
-
-      foreach( self::$_dbTableNames as $table )
-      {
-        $db->execute('TRUNCATE ' . $table);
-      }
-
-      $db->execute('SET foreign_key_checks = 1');
-    }
-
-    Doctrine_Core::loadData(sfConfig::get('sf_data_dir').'/fixtures');
-
-    $this->_fixtureLoader
-      ->flushFixtures()
-      ->loadFixture(
-          sfFinder::type('file')
-            ->name('_global.*')
-            ->relative()
-            ->in(sfConfig::get('sf_root_dir') . '/test/fixtures')
+        Doctrine_Core::loadModels(
+          sfConfig::get('sf_lib_dir').'/model/doctrine',
+          Doctrine_Core::MODEL_LOADING_CONSERVATIVE
         );
+        Doctrine_Core::createTablesFromArray(Doctrine_Core::getLoadedModels());
+
+        self::$_dbRebuilt = true;
+      }
+      else
+      {
+        if( ! isset(self::$_tableNames) )
+        {
+          self::$_dbTableNames = array();
+          foreach( $db->execute('SHOW TABLES') as $row )
+          {
+            self::$_dbTableNames[] = $db->quoteIdentifier($row[0]);
+          }
+        }
+
+        $db->execute('SET foreign_key_checks = 0');
+
+        foreach( self::$_dbTableNames as $table )
+        {
+          $db->execute('TRUNCATE ' . $table);
+        }
+
+        $db->execute('SET foreign_key_checks = 1');
+      }
+
+      Doctrine_Core::loadData(sfConfig::get('sf_data_dir').'/fixtures');
+
+      $this->_fixtureLoader
+        ->flushFixtures()
+        ->loadFixture(
+            sfFinder::type('file')
+              ->name('_global.*')
+              ->relative()
+              ->in(sfConfig::get('sf_root_dir') . '/test/fixtures')
+          );
+    }
 
     return $this;
   }
 
-  /** Accessor for $_appConfig.
+  /** Accessor for $_appConfigs.
    *
    * @return sfApplicationConfiguration
    */
-  static protected function getAppConfig(  )
+  protected function getAppConfig(  )
   {
-    if( ! isset(self::$_appConfig) )
+    if( ! isset(self::$_appConfigs[$this->_application]) )
     {
-      if( sfContext::hasInstance() )
+      if( sfContext::hasInstance($this->_application) )
       {
-        self::$_appConfig = sfContext::getInstance()->getConfiguration();
+        self::$_appConfigs[$this->_application] =
+          sfContext::getInstance($this->_application)
+            ->getConfiguration();
       }
       else
       {
-        self::$_appConfig = ProjectConfiguration::getApplicationConfiguration(
-          'frontend',
-          'test',
-          true,
-          realpath(dirname(__FILE__) . '/../..')
-        );
-        sfContext::createInstance(self::$_appConfig);
+        self::$_appConfigs[$this->_application] =
+          ProjectConfiguration::getApplicationConfiguration(
+            $this->_application,
+            self::DEFAULT_ENVIRONMENT,
+            true,
+
+            /* 1 %SF_ROOT_DIR%
+             * 2   plugins/
+             * 3     sfJwtPhpUnitPlugin/
+             * 4       lib/
+             * *         test/
+             *
+             * * = dirname(__FILE__)
+             */
+            realpath(dirname(__FILE__) . '/../../../..')
+          );
+          sfContext::createInstance(self::$_appConfigs[$this->_application]);
       }
     }
 
-    return self::$_appConfig;
+    return self::$_appConfigs[$this->_application];
   }
 
   /** Gets the Doctrine connection, initializing it if necessary.
    *
    * @return Doctrine_Connection
    */
-  static protected function getDbConnection(  )
+  protected function getDbConnection(  )
   {
     try
     {
@@ -175,7 +198,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     }
     catch( Doctrine_Connection_Exception $e )
     {
-      new sfDatabaseManager(self::getAppConfig());
+      new sfDatabaseManager($this->getAppConfig());
       return Doctrine_Manager::connection();
     }
   }
@@ -187,11 +210,11 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    * @return void Triggers an error if our database connection is unsafe for
    *  testing.
    */
-  static protected function verifyTestDbConnection( $force = false )
+  protected function verifyTestDbConnection( $force = false )
   {
     if( ! self::$_dbNameCheck or $force )
     {
-      self::_assertTestEnvironment();
+      $this->_assertTestEnvironment();
 
       $config = sfConfigHandler::replaceConstants(sfYaml::load(
         sfConfig::get('sf_root_dir') . '/config/databases.yml'
@@ -217,7 +240,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       }
 
       /* Check to see that the active connection is using the correct DSN. */
-      if( self::getDbConnection()->getOption('dsn') != $test )
+      if( $this->getDbConnection()->getOption('dsn') != $test )
       {
         self::_halt('Doctrine connection is not using test DSN!');
       }
@@ -233,11 +256,11 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    *
    * @return string path to uploads directory.
    */
-  static protected function validateUploadsDir( $force = false )
+  protected function validateUploadsDir( $force = false )
   {
     if( ! self::$_uploadsDirCheck or $force )
     {
-      self::_assertTestEnvironment();
+      $this->_assertTestEnvironment();
 
       $config = sfConfigHandler::replaceConstants(sfYaml::load(
         sfConfig::get('sf_app_dir') . '/config/settings.yml'
@@ -301,9 +324,9 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    *
    * @return void
    */
-  static protected function _assertTestEnvironment(  )
+  private function _assertTestEnvironment(  )
   {
-    self::getAppConfig();
+    $this->getAppConfig();
     if( sfConfig::get('sf_environment') != 'test' )
     {
       self::_halt('Please verify that getAppConfig() is specifying the "test" environment.');

@@ -12,6 +12,14 @@ class FunctionalTestsTask extends BasePhpunitTask
 
     $this->addOptions(array(
       new sfCommandOption(
+        'application',
+        'a',
+        sfCommandOption::PARAMETER_REQUIRED,
+        'Run tests from the specified application.',
+        'frontend'
+      ),
+
+      new sfCommandOption(
         'module',
         'm',
         sfCommandOption::PARAMETER_REQUIRED,
