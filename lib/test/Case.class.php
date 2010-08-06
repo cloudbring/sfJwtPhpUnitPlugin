@@ -172,8 +172,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         $db->execute('SET foreign_key_checks = 1');
       }
 
-      Doctrine_Core::loadData(sfConfig::get('sf_data_dir').'/fixtures');
-
       $this->_fixtureLoader
         ->flushFixtures()
         ->loadFixture(
