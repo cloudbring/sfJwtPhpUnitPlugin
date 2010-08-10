@@ -133,7 +133,7 @@ class Test_Browser extends sfBrowser
     return isset($this->_plugins[$name]);
   }
 
-  /** Alias for getPlugin().
+  /** Alias for getPluginInstance().
    *
    * @param string $meth
    * @param array  $args
