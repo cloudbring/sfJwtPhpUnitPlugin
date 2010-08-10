@@ -4,122 +4,180 @@
  * Note:  Designed to work with Symfony 1.4.  Might not work properly with later
  *  versions of Symfony.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
  */
 class Test_Browser extends sfBrowser
 {
-  /** Returns the content of elements that match a CSS selector.
+  const
+    CLASS_PLUGIN  = 'Test_Browser_Plugin';
+
+  private
+    $_plugins;
+
+  /** Init the class instance.
    *
-   * @param string $selector
-   *
-   * @return array(sfDomCssSelector)
+   * @return void
    */
-  public function select( $selector )
+  public function __construct(  )
   {
-    return $this->getResponseDomCssSelector()->matchAll($selector);
+    parent::__construct();
+
+    $this->_plugins = array();
+
+    $this
+      ->usePlugin('request')
+      ->usePlugin('response')
+      ->usePlugin('error');
   }
 
-  /** Returns JSON-encoded content from a request as an object.
+  /** Registers a plugin with the browser.
    *
-   * @param bool $assoc If true, JS objects will be converted to associative
-   *  arrays instead of stdClass instances.
+   * @param string|Test_Browser_Plugin $plugin
    *
-   * @return mixed
+   * @return Test_Browser $this
+   * @throws InvalidArgumentException if $plugin is invalid.
+   * @throws LogicException if the plugin has already been registered.
    */
-  public function getJsonResponse( $assoc = false )
+  public function usePlugin( $plugin )
   {
-    $res = json_decode($this->getContent(), $assoc);
-
-    if( is_null($res) )
+    /** Validate $plugin. */
+    if( is_string($plugin) )
     {
-      throw new Exception(sprintf(
-        "Invalid JSON Content:\n\n%s",
-          $this->getContent()
-      ));
-    }
-
-    return $res;
-  }
-
-  /** Returns serialized content from a request as an object.
-   *
-   * @return mixed
-   */
-  public function getSerializedResponse(  )
-  {
-    $res = @unserialize($this->getContent());
-
-    if( $res === false and $this->getContent() !== serialize(false) )
-    {
-      throw new Exception(sprintf(
-        "Invalid serialized content:\n\n%s",
-          $this->getContent()
-      ));
-    }
-
-    return $res;
-  }
-
-  /** Shortcut for getting the status code from the response.
-   *
-   * @return int
-   */
-  public function getStatusCode(  )
-  {
-    return $this->getResponse()->getStatusCode();
-  }
-
-  /** Shortcut for getting the content from the response.
-   *
-   * @return string
-   */
-  public function getContent(  )
-  {
-    return $this->getResponse()->getContent();
-  }
-
-  /** Returns the message of an uncaught exception, if one exists.
-   *
-   * @return string
-   */
-  public function getError(  )
-  {
-    return
-      $this->checkCurrentExceptionIsEmpty()
-        ? ''
-        : $this->getCurrentException()->getMessage();
-  }
-
-  /** Returns the sfForm instance from the action stack.
-   *
-   * @return sfForm|null
-   */
-  public function getForm(  )
-  {
-    $Action =
-      $this->getContext()
-        ->getActionStack()
-        ->getLastEntry()
-          ->getActionInstance();
-
-    foreach( $Action->getVarHolder()->getAll() as $name => $value )
-    {
-      if( $value instanceof sfForm and $value->isBound() )
+      /* See if $plugin is a shortened version of the class name. */
+      if( ! (class_exists($plugin) and is_subclass_of($plugin, self::CLASS_PLUGIN)) )
       {
-        return $value;
+        $plugin = self::CLASS_PLUGIN . '_' . ucfirst($plugin);
       }
     }
 
-    return null;
+    if( ! is_subclass_of($plugin, self::CLASS_PLUGIN) )
+    {
+      throw new InvalidArgumentException(sprintf(
+        '%s is not a valid %s %s.',
+          $plugin,
+          self::CLASS_PLUGIN,
+          is_object($plugin) ? 'instance' : 'class'
+      ));
+    }
+
+    /* Initialize the plugin. */
+    if( ! is_object($plugin) )
+    {
+      $plugin = new $plugin();
+    }
+
+    $name = $plugin->getName();
+    if( $this->hasPlugin($name) )
+    {
+      throw new LogicException(sprintf(
+        'Plugin "%s" has already been registered for this %s instance.',
+          $name,
+          get_class($this)
+      ));
+    }
+
+    /* Plugin has passed inspection.  Attach it. */
+    $this->_plugins[$name] = $plugin;
+    $plugin->init($this);
+
+    return $this;
   }
 
-  /** Returns the email logger from the browser context.
+  /** Accessor for $_plugins[$name].
    *
-   * @return sfMailerMessageLoggerPlugin
+   * @param string    $name
+   *
+   * @return Test_Browser_Plugin
+   * @throws InvalidArgumentException if no plugin named $name was registered.
    */
-  public function getMailer(  )
+  public function getPlugin( $name )
   {
-    return $this->getContext()->getMailer()->getLogger();
+    if( ! $this->hasPlugin($name) )
+    {
+      throw new InvalidArgumentException(sprintf(
+        'Plugin "%s" has not been registered with this %s instance.',
+          $name,
+          get_class($this)
+      ));
+    }
+
+    return $this->_plugins[$name];
+  }
+
+  /** Similar to getPlugin(), but can return different values depending on how
+   *   the plugin is configured.
+   *
+   * @see Test_Browser_Plugin::getInstance()
+   *
+   * @param string    $name
+   * @param mixed,... $args
+   *
+   * @return mixed
+   */
+  public function getPluginInstance( $name )
+  {
+    return $this->getPlugin($name)->getInstance(
+      array_slice(func_get_args(), 1)
+    );
+  }
+
+  /** Returns whether a given plugin has been registered.
+   *
+   * @param string $name
+   *
+   * @return bool
+   */
+  public function hasPlugin( $name )
+  {
+    return isset($this->_plugins[$name]);
+  }
+
+  /** Alias for getPlugin().
+   *
+   * @param string $meth
+   * @param array  $args
+   *
+   * @return Test_Browser_Plugin
+   */
+  public function __call( $meth, array $args )
+  {
+    if( strlen($meth) > 3 and substr($meth, 0, 3) == 'get' )
+    {
+      /** @todo When we move to PHP 5.3, use lcfirst() instead. */
+      $plugin = strtolower(substr($meth, 3, 1)) . substr($meth, 4);
+
+      if( $this->hasPlugin($plugin) or ! method_exists('parent', $meth) )
+      {
+        array_unshift($args, $plugin);
+        return call_user_func_array(array($this, 'getPluginInstance'), $args);
+      }
+    }
+
+    /* A little ugly, but it gets the job done. */
+    return call_user_func_array(array('parent', $meth), $args);
+  }
+
+  /** Reset plugins before calling sfBrowser->call().
+   *
+   * @return Test_Browser $this
+   */
+  public function call( $uri, $method = 'get', $parameters = array(), $changeStack = true )
+  {
+    foreach( $this->_plugins as $Plugin )
+    {
+      $Plugin->reset();
+    }
+
+    return parent::call($uri, $method, $parameters, $changeStack);
+  }
+
+  /** Returns whether a browser call has executed.
+   *
+   * @return bool
+   */
+  public function hasContext(  )
+  {
+    return isset($this->context);
   }
 }
