@@ -35,13 +35,18 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
 
   /** Handles a call from getPluginInstance() in the browser instance.
    *
+   * Typically, this method will return the plugin instance itself, but
+   *  some plugins might not be designed to be interactive (e.g., a plugin that
+   *  parses some values out of the browser response might only want to return
+   *  the parsed values when _doGetInstance() is invoked).
+   *
    * @param mixed,... $args
    *
    * @return mixed
    */
   protected function _doGetInstance(  )
   {
-    return $this->getEncapsulatedObject();
+    return $this;
   }
 
   /** Base initialization of the plugin.
@@ -84,12 +89,26 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
    */
   final public function getEncapsulatedObject(  )
   {
+    return
+      $this->hasEncapsulatedObject()
+        ? parent::getEncapsulatedObject()
+        : null;
+  }
+
+  /** Returns whether the encapsulated object exists.
+   *
+   * Note that because
+   *
+   * @return bool
+   */
+  public function hasEncapsulatedObject(  )
+  {
     if( ! parent::hasEncapsulatedObject() )
     {
       $this->setup();
     }
 
-    return parent::getEncapsulatedObject();
+    return parent::hasEncapsulatedObject();
   }
 
   /** Accessor for $_browser.

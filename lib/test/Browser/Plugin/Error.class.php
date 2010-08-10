@@ -30,21 +30,21 @@ class Test_Browser_Plugin_Error extends Test_Browser_Plugin
   /** Handles a call from getPluginInstance() in the browser instance.
    *
    * @param bool $object
-   *  - true:   Return the Exception object (or null if there was none).
+   *  - true:   Return the Plugin object (Exception is encapsulated).
    *  - false:  Return the error message (or null if there was no Exception).
    *
-   * @return string|Exception|null
+   * @return string|Test_Browser_Plugin_Error|null
    */
   protected function _doGetInstance( $object = false )
   {
-    if( $Exception = $this->getEncapsulatedObject() )
+    if( $this->hasEncapsulatedObject() )
     {
       $args = func_get_args();
 
       return
         empty($args[0])
-          ? (string) $this->getEncapsulatedObject()->getMessage()
-          : $this->getEncapsulatedObject();
+          ? (string) $this->getMessage()
+          : $this;
     }
     else
     {
