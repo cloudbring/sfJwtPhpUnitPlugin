@@ -10,6 +10,9 @@
  */
 abstract class Test_Case_Functional extends Test_Case
 {
+  const
+    MSG_STATUSCODE = 'Browser returned HTTP status %d.';
+
   protected
     $_browser;
 
