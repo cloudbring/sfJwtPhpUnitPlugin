@@ -18,7 +18,7 @@ abstract class Test_ObjectWrapper
 
   /** Accessor for $_encapsulatedObject.
    *
-   * @return Object|null
+   * @return object|null
    */
   public function getEncapsulatedObject(  )
   {
@@ -29,14 +29,41 @@ abstract class Test_ObjectWrapper
    *
    * Note that this method will overwrite any existing encapsulated object!
    *
-   * @param Object $Object
+   * @param object|string(class)|null $Object
+   *  Note:  If $Object is an instance of Test_ObjectWrapper, the object's
+   *   encapsulated object will be used instead of the wrapper.
    *
-   * @return ObjectWrapper($this)
+   * @return Test_ObjectWrapper($this)
+   * @throws InvalidArgumentException if $Object is of the wrong type.
+   *
    * @access protected Should only be invoked by subclass.
    */
   protected function setEncapsulatedObject( $Object )
   {
-    $this->_encapsulatedObject = $Object;
+    if( is_object($Object) )
+    {
+      $this->_encapsulatedObject =
+        $Object instanceof self
+          ? $Object->getEncapsulatedObject()
+          : $Object;
+    }
+    elseif( is_string($Object) and class_exists($Object) )
+    {
+      $this->_encapsulatedObject = new $Object();
+    }
+    elseif( $Object === null )
+    {
+      $this->_encapsulatedObject = null;
+    }
+    else
+    {
+      throw new InvalidArgumentException(sprintf(
+        'Invalid %s passed to %s().',
+          is_object($Object) ? get_class($Object) : gettype($Object),
+          __FUNCTION__
+      ));
+    }
+
     return $this;
   }
 
