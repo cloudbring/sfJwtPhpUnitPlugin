@@ -28,7 +28,7 @@ class Test_Browser_Plugin_Response extends Test_Browser_Plugin
    *
    * @param string $selector
    *
-   * @return array(sfDomCssSelector)
+   * @return sfDomCssSelector
    */
   public function select( $selector )
   {
