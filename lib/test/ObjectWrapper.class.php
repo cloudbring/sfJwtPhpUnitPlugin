@@ -9,7 +9,7 @@
  *  attached.
  *
  * @package sfJwtPhpUnitPlugin
- * @subpackage lib
+ * @subpackage lib.test
  */
 abstract class Test_ObjectWrapper
 {

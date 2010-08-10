@@ -1,7 +1,7 @@
 <?php
 /** Base functionality for PHPUnit-related tasks.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.task
  */
 abstract class BasePhpunitTask extends sfBaseTask

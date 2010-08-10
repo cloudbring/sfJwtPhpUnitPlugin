@@ -5,7 +5,7 @@
  * Note:  Designed to work with Symfony 1.4.  Might not work properly with later
  *  versions of Symfony.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
  */
 abstract class Test_Case_Functional extends Test_Case

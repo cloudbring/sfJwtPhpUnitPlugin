@@ -1,7 +1,7 @@
 <?php
 /** Loads a .yml test fixture.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
  */
 class Test_FixtureLoader_Loader_Yml extends Test_FixtureLoader_Loader

@@ -1,7 +1,7 @@
 <?php
 /** Creates a safe environment for executing PHP scripts.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
  */
 class Test_Harness

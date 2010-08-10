@@ -1,7 +1,7 @@
 <?php
 /** Creates a safe environment for executing PHP fixture files.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
  */
 abstract class Test_FixtureLoader_Loader_Php_Harness extends Test_Harness

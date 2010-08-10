@@ -4,7 +4,7 @@
  * Note:  This class is designed to work with Symfony 1.4 and might not work
  *  properly with other versions of Symfony.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
  */
 abstract class Test_Case extends PHPUnit_Framework_TestCase

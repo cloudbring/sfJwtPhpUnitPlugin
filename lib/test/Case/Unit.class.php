@@ -1,7 +1,7 @@
 <?php
 /** Adds Symfony-specific features to PHPUnit's unit testing framework.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
  */
 abstract class Test_Case_Unit extends Test_Case

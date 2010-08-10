@@ -1,7 +1,7 @@
 <?php
 /** Runs all functional tests for a project.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.task
  */
 class FunctionalTestsTask extends BasePhpunitTask

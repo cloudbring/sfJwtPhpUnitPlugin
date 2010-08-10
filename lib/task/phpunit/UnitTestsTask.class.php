@@ -1,7 +1,7 @@
 <?php
 /** Runs all unit tests for a project.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.task
  */
 class UnitTestsTask extends BasePhpunitTask

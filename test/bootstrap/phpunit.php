@@ -1,8 +1,8 @@
 <?php
 /** Init environment for working with PHPUnit tests.
  *
- * @package cms
- * @subpackage test
+ * @package sfJwtPhpUnitPlugin
+ * @subpackage test.bootstrap
  */
 
 $basedir = realpath(dirname(__FILE__) . '/../..');

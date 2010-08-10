@@ -1,7 +1,7 @@
 <?php
 /** Runs all tests in a specified file(s).
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.task
  */
 class FileTestsTask extends BasePhpUnitTask

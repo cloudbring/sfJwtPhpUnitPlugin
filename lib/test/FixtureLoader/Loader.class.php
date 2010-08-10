@@ -1,7 +1,7 @@
 <?php
 /** Base functionality for fixture file loaders.
  *
- * @package jwt
+ * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
  */
 abstract class Test_FixtureLoader_Loader
