@@ -73,7 +73,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $this->_fixtureLoader = new Test_FixtureLoader();
 
     $this->flushDatabase();
-    $this->validateUploadsDir();
+    $this->flushUploads();
 
     $this->_init();
     $this->_setUp();
@@ -181,6 +181,22 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
               ->in(sfConfig::get('sf_root_dir') . '/test/fixtures')
           );
     }
+
+    return $this;
+  }
+
+  /** Removes anything in the uploads directory.
+   *
+   * @return Test_Case($this)
+   */
+  public function flushUploads(  )
+  {
+    $this->validateUploadsDir();
+
+    $Filesystem = new sfFilesystem();
+    $Filesystem->remove(
+      sfFinder::type('any')->in(sfConfig::get('sf_upload_dir'))
+    );
 
     return $this;
   }
