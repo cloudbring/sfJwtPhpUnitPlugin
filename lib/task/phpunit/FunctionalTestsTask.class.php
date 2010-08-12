@@ -15,15 +15,15 @@ class FunctionalTestsTask extends BasePhpunitTask
         'application',
         'a',
         sfCommandOption::PARAMETER_REQUIRED,
-        'Run tests from the specified application.',
-        'frontend'
+        'If set, only run tests from the specified application.',
+        null
       ),
 
       new sfCommandOption(
         'module',
         'm',
         sfCommandOption::PARAMETER_REQUIRED,
-        'If set, only tests from the specified module will be run.',
+        'If set, only run tests from the specified module.',
         null
       )
     ));
@@ -42,10 +42,22 @@ END;
   {
     $params = $this->_validateInput($args, $opts);
 
-    $this->_type .= '/' . $params['application'];
-    if( ! empty($params['module']) )
+    if( empty($params['application']) )
     {
-      $this->_type .= '/' . $params['module'];
+      if( ! empty($params['module']) )
+      {
+        throw new InvalidArgumentException(
+          'Specify a value for --application when using the --module option.'
+        );
+      }
+    }
+    else
+    {
+      $this->_type .= '/' . $params['application'];
+      if( ! empty($params['module']) )
+      {
+        $this->_type .= '/' . $params['module'];
+      }
     }
 
     $this->_runTests($this->_type, $this->_validatePhpUnitInput($args, $opts));

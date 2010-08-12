@@ -238,7 +238,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
              */
             realpath(dirname(__FILE__) . '/../../../..')
           );
-          sfContext::createInstance(self::$_appConfigs[$this->_application]);
+        sfContext::createInstance(self::$_appConfigs[$this->_application]);
       }
     }
 
