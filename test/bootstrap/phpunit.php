@@ -19,7 +19,5 @@ set_include_path(
   . $basedir . '/lib/vendor'
 );
 
-require_once 'PHPUnit/Framework.php';
-
 /** Do not include this file in stack traces if/when tests fail. */
-PHPUnit_Util_Filter::addFileToFilter(__FILE__, 'PHPUNIT');
+PHP_CodeCoverage_Filter::getInstance()->addFileToBlacklist(__FILE__, 'PHPUNIT');
