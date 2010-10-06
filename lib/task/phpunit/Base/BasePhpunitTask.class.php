@@ -76,10 +76,10 @@ abstract class BasePhpunitTask extends sfBaseTask
     );
     foreach( $blacklist as $dir )
     {
-      PHPUnit_Util_Filter::addDirectoryToFilter($dir);
+      PHP_CodeCoverage_Filter::getInstance()->addDirectoryToBlacklist($dir);
     }
 
-    PHPUnit_Util_Filter::addFileToFilter(
+    PHP_CodeCoverage_Filter::getInstance()->addFileToBlacklist(
       sfConfig::get('sf_root_dir') . '/symfony'
     );
 
