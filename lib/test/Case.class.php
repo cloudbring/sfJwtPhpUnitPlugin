@@ -20,14 +20,15 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $_appConfigs = array(),
     $_dbRebuilt,
     $_dbNameCheck,
-    $_dbTableNames,
     $_uploadsDirCheck,
-    $_defaultApplication;
+    $_defaultApplication,
+    $_configs;
 
   protected
     $_application;
 
   private
+    /** @var Test_FixtureLoader */
     $_fixtureLoader;
 
   /** Accessor for the default application name.
@@ -74,6 +75,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
     $this->flushDatabase();
     $this->flushUploads();
+    $this->flushConfigs();
 
     $this->_init();
     $this->_setUp();
@@ -153,20 +155,11 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       }
       else
       {
-        if( ! isset(self::$_tableNames) )
-        {
-          self::$_dbTableNames = array();
-          foreach( $db->execute('SHOW TABLES') as $row )
-          {
-            self::$_dbTableNames[] = $db->quoteIdentifier($row[0]);
-          }
-        }
-
         $db->execute('SET foreign_key_checks = 0');
 
-        foreach( self::$_dbTableNames as $table )
+        foreach( Doctrine_Core::getLoadedModels() as $table )
         {
-          $db->execute('TRUNCATE ' . $table);
+          Doctrine_Query::create()->delete($table)->execute();
         }
 
         $db->execute('SET foreign_key_checks = 1');
@@ -197,6 +190,26 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $Filesystem->remove(
       sfFinder::type('any')->in(sfConfig::get('sf_upload_dir'))
     );
+
+    return $this;
+  }
+
+  /** Restores all sfConfig values to their state before the current test was
+   *   run.
+   *
+   * @return Test_Case($this)
+   */
+  public function flushConfigs(  )
+  {
+    if( isset(self::$_configs) )
+    {
+      sfConfig::clear();
+      sfConfig::add(self::$_configs);
+    }
+    else
+    {
+      self::$_configs = sfConfig::getAll();
+    }
 
     return $this;
   }
