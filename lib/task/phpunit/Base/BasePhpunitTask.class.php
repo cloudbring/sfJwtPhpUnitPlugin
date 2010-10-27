@@ -91,26 +91,30 @@ abstract class BasePhpunitTask extends sfBaseTask
    */
   private function _doRunTests( array $options )
   {
-    require_once
-        'PHPUnit' . DIRECTORY_SEPARATOR
-      . 'TextUI'  . DIRECTORY_SEPARATOR
-      . 'TestRunner.php';
-
-    $Runner = new PHPUnit_TextUI_TestRunner();
-
-    $Suite = new PHPUnit_Framework_TestSuite(ucfirst($this->name) . ' Tests');
-    $Suite->addTestFiles($this->_findTestFiles(
-      (string)  $this->_type,
-      (array)   $this->_paths
-    ));
-
-    try
+    if( $files = $this->_findTestFiles($this->_type, (array) $this->_paths) )
     {
-      $Runner->doRun($Suite, $options);
+      require_once
+          'PHPUnit' . DIRECTORY_SEPARATOR
+        . 'TextUI'  . DIRECTORY_SEPARATOR
+        . 'TestRunner.php';
+
+      $Runner = new PHPUnit_TextUI_TestRunner();
+
+      $Suite = new PHPUnit_Framework_TestSuite(ucfirst($this->name) . ' Tests');
+      $Suite->addTestFiles($files);
+
+      try
+      {
+        $Runner->doRun($Suite, $options);
+      }
+      catch( PHPUnit_Framework_Exception $e )
+      {
+        $this->logSection('phpunit', $e->getMessage());
+      }
     }
-    catch( PHPUnit_Framework_Exception $e )
+    else
     {
-      $this->logSection('phpunit', $e->getMessage());
+      $this->logSection('phpunit', 'No tests found.');
     }
   }
 
@@ -151,9 +155,11 @@ abstract class BasePhpunitTask extends sfBaseTask
         /* Don't allow path injection, just in case. */
         if( array_search('..', explode(DIRECTORY_SEPARATOR, $path)) !== false )
         {
-          trigger_error(
+          $this->logSection(
+            'phpunit',
             sprintf('Skipping unsafe path %s.', $fullpath),
-            E_USER_WARNING
+            null,
+            'ERROR'
           );
 
           continue;
@@ -195,9 +201,9 @@ abstract class BasePhpunitTask extends sfBaseTask
           }
           else
           {
-            trigger_error(
-              sprintf('No test files located at %s.', $fullpath),
-              E_USER_NOTICE
+            $this->logSection(
+              'phpunit',
+              sprintf('No test files located at %s.', $fullpath)
             );
           }
         }

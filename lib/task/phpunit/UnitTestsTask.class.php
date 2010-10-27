@@ -14,7 +14,7 @@ class UnitTestsTask extends BasePhpunitTask
       new sfCommandArgument(
         'path',
         sfCommandArgument::OPTIONAL | sfCommandArgument::IS_ARRAY,
-        'Specify the relative path to the test file or directory.',
+        'Specify the relative paths to specific test files and/or directories under sf_root_dir/test/unit.  If no arguments are provided, all unit tests will be run.',
         null
       )
     ));
@@ -23,7 +23,7 @@ class UnitTestsTask extends BasePhpunitTask
     $this->briefDescription = 'Runs all PHPUnit unit tests for the project.';
 
     $this->detailedDescription = <<<END
-Runs all PHPUnit unit tests for the project.
+Runs PHPUnit unit tests for the project.
 END;
 
     $this->_type = 'unit';
