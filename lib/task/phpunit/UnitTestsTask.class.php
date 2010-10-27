@@ -10,12 +10,11 @@ class UnitTestsTask extends BasePhpunitTask
   {
     parent::configure();
 
-    $this->addOptions(array(
-      new sfCommandOption(
-        'subtype',
-        's',
-        sfCommandOption::PARAMETER_REQUIRED,
-        'If set, only tests from the specified subdirectory within the unit tests directory will be run.',
+    $this->addArguments(array(
+      new sfCommandArgument(
+        'path',
+        sfCommandArgument::OPTIONAL | sfCommandArgument::IS_ARRAY,
+        'Specify the relative path to the test file or directory.',
         null
       )
     ));
@@ -32,14 +31,9 @@ END;
 
   public function execute( $args = array(), $opts = array() )
   {
-    $params = $this->_validateInput($args, $opts);
+    $params       = $this->_validateInput($args, $opts);
+    $this->_paths = (array) $params['path'];
 
-    if( ! empty($params['subtype']) )
-    {
-      $this->_type .= '/' . $params['subtype'];
-      unset($params['subtype']);
-    }
-
-    $this->_runTests($this->_type, $this->_validatePhpUnitInput($args, $opts));
+    $this->_runTests($this->_validatePhpUnitInput($args, $opts));
   }
 }

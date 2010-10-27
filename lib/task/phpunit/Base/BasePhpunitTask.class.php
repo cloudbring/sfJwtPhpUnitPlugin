@@ -7,7 +7,11 @@
 abstract class BasePhpunitTask extends sfBaseTask
 {
   protected
-    $_type   = '';
+    $_type,
+    $_paths;
+
+  private
+    $_basedir;
 
   public function configure(  )
   {
@@ -42,52 +46,63 @@ abstract class BasePhpunitTask extends sfBaseTask
 
   public function execute( $args = array(), $opts = array() )
   {
-    $this->_runTests(
-      $this->_type,
-      $this->_validatePhpUnitInput($args, $opts)
-    );
+    $this->_runTests($this->_validatePhpUnitInput($args, $opts));
+  }
+
+  /** Return the base directory for the plugin.
+   *
+   * @return string(dirpath)
+   */
+  protected function _getBasedir(  )
+  {
+    if( ! isset($this->_basedir) )
+    {
+      /* I.e., sf_root_dir/plugins/sfJwtPhpUnitPlugin(/lib/task/phpunit/Base) */
+      $this->_basedir = realpath(
+          dirname(__FILE__)
+        . str_repeat(DIRECTORY_SEPARATOR . '..', 4)
+      );
+    }
+
+    return $this->_basedir;
   }
 
   /** Runs all tests of a given type.
    *
-   * @param string $type    ('unit', 'functional', '') If empty, runs all tests.
-   * @param array  $options
+   * @param array $options PHPUnit options.
    *
    * @return void
    */
-  protected function _runTests( $type = '', array $options = array() )
+  protected function _runTests( array $options = array() )
   {
-    $basedir = sfConfig::get('sf_plugins_dir') . '/sfJwtPhpUnitPlugin';
-    require_once $basedir . '/test/bootstrap/phpunit.php';
+    $this->_executeGlobalBootstrap();
+    $this->_executeProjectBootstrap();
 
-    /* Run the project bootstrap file, if one exists. */
-    $init = sfConfig::get('sf_root_dir') . '/test/bootstrap/phpunit.php';
-    if( is_file($init) )
-    {
-      $Harness = new Test_Harness($init);
-      $Harness->execute();
-    }
+    $this->_populateTraceBlacklist();
 
-    /* Do not list infrastructure directories in test failure backtraces. */
-    $blacklist = array(
-      $basedir . '/lib/test',
-      realpath(dirname(__FILE__) . '/..'),
-      sfCoreAutoload::getInstance()->getBaseDir()
-    );
-    foreach( $blacklist as $dir )
-    {
-      PHP_CodeCoverage_Filter::getInstance()->addDirectoryToBlacklist($dir);
-    }
+    $this->_doRunTests($options);
+  }
 
-    PHP_CodeCoverage_Filter::getInstance()->addFileToBlacklist(
-      sfConfig::get('sf_root_dir') . '/symfony'
-    );
+  /** Initialize the PHPUnit test runner and run tests.
+   *
+   * @param array $options
+   *
+   * @return void
+   */
+  private function _doRunTests( array $options )
+  {
+    require_once
+        'PHPUnit' . DIRECTORY_SEPARATOR
+      . 'TextUI'  . DIRECTORY_SEPARATOR
+      . 'TestRunner.php';
 
-    require_once 'PHPUnit/TextUI/TestRunner.php';
     $Runner = new PHPUnit_TextUI_TestRunner();
 
-    $Suite = new PHPUnit_Framework_TestSuite(ucfirst($this->_type) . ' Tests');
-    $Suite->addTestFiles($this->_findTestFiles($type));
+    $Suite = new PHPUnit_Framework_TestSuite(ucfirst($this->name) . ' Tests');
+    $Suite->addTestFiles($this->_findTestFiles(
+      (string)  $this->_type,
+      (array)   $this->_paths
+    ));
 
     try
     {
@@ -101,26 +116,93 @@ abstract class BasePhpunitTask extends sfBaseTask
 
   /** Generates a list of test files.
    *
-   * @param string $type ('unit', 'functional') If empty, all tests returned.
+   * @param string  $type ('unit', 'functional') If empty, all tests returned.
+   * @param array   $paths Sub-paths within $type to search.  If empty, all
+   *  tests under $type returned.
    *
    * @return array(string)
    */
-  protected function _findTestFiles( $type = '' )
+  protected function _findTestFiles( $type = '', array $paths = array() )
   {
+    if( ! $paths )
+    {
+      $paths = array('');
+    }
+
     if( $type == '' )
     {
       return array_merge(
-        $this->_findTestFiles('unit'),
-        $this->_findTestFiles('functional')
+        $this->_findTestFiles('unit', $paths),
+        $this->_findTestFiles('functional', $paths)
       );
     }
     else
     {
-      $base = sfConfig::get('sf_root_dir') . '/test/';
+      $base =
+          sfConfig::get('sf_root_dir')  . DIRECTORY_SEPARATOR
+        . 'test'                        . DIRECTORY_SEPARATOR
+        . $type                         . DIRECTORY_SEPARATOR;
 
-      return sfFinder::type('file')
-        ->name('*.php')
-        ->in($base . $type);
+      $files = array();
+      foreach( $paths as $path )
+      {
+        $fullpath = $base . $path;
+
+        /* Don't allow path injection, just in case. */
+        if( array_search('..', explode(DIRECTORY_SEPARATOR, $path)) !== false )
+        {
+          trigger_error(
+            sprintf('Skipping unsafe path %s.', $fullpath),
+            E_USER_WARNING
+          );
+
+          continue;
+        }
+
+        /* If $fullpath points to a file, load it. */
+        if( is_file($fullpath) )
+        {
+          $files[] = $fullpath;
+        }
+
+        /* If $fullpath points to a directory, load all files in it. */
+        elseif( is_dir($fullpath) )
+        {
+          $files = array_merge(
+            $files,
+            sfFinder::type('file')
+              ->name('*.php')
+              ->in($fullpath)
+          );
+        }
+
+        /* If $fullpath is the path to a file minus a '.php' or '.class.php'
+         *  extension, load the auto-corrected filepath.
+         */
+        else
+        {
+          $basename =
+              dirname($fullpath) . DIRECTORY_SEPARATOR
+            . basename($fullpath, '.php');
+
+          if( is_file($basename . '.php') )
+          {
+            $files[] = $basename . '.php';
+          }
+          elseif( is_file($basename . '.class.php') )
+          {
+            $files[] = $basename . '.class.php';
+          }
+          else
+          {
+            trigger_error(
+              sprintf('No test files located at %s.', $fullpath),
+              E_USER_NOTICE
+            );
+          }
+        }
+      }
+      return $files;
     }
   }
 
@@ -188,5 +270,64 @@ abstract class BasePhpunitTask extends sfBaseTask
   protected function _isset( $val )
   {
     return isset($val);
+  }
+
+  /** Executes the global PHPUnit bootstrap file.
+   *
+   * @return void
+   */
+  protected function _executeGlobalBootstrap(  )
+  {
+    /* sf_root_dir/plugins/sfJwtPhpUnitPlugin/test/bootstrap/phpunit.php */
+    $Harness = new Test_Harness_Safe(
+        $this->_getBasedir()  . DIRECTORY_SEPARATOR
+      . 'test'                . DIRECTORY_SEPARATOR
+      . 'bootstrap'           . DIRECTORY_SEPARATOR
+      . 'phpunit.php'
+    );
+    $Harness->execute();
+  }
+
+  /** Execute the project-specific bootstrap file, if it exists.
+   *
+   * @return void
+   */
+  protected function _executeProjectBootstrap(  )
+  {
+    /* sf_root_dir/test/bootstrap/phpunit.php */
+    $init =
+        sfConfig::get('sf_root_dir')  . DIRECTORY_SEPARATOR
+      . 'test'                        . DIRECTORY_SEPARATOR
+      . 'bootstrap'                   . DIRECTORY_SEPARATOR
+      . 'phpunit.php';
+
+    if( is_file($init) )
+    {
+      $Harness = new Test_Harness_Safe($init);
+      $Harness->execute();
+    }
+  }
+
+  /** Adds various plugin support files to the blacklist so that they are not
+   *   output in test failure traces.
+   *
+   * @return void
+   */
+  protected function _populateTraceBlacklist(  )
+  {
+    $blacklist = array(
+      $this->_getBasedir(),                       /* Plugin files.        */
+      sfCoreAutoload::getInstance()->getBaseDir() /* Base Symfony files.  */
+    );
+
+    foreach( $blacklist as $dir )
+    {
+      PHP_CodeCoverage_Filter::getInstance()->addDirectoryToBlacklist($dir);
+    }
+
+    /* Also ignore the Symfony executable. */
+    PHP_CodeCoverage_Filter::getInstance()->addFileToBlacklist(
+      sfConfig::get('sf_root_dir') . DIRECTORY_SEPARATOR . 'symfony'
+    );
   }
 }
