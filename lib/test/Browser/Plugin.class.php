@@ -62,9 +62,9 @@ abstract class Test_Browser_Plugin
    * @param string $name
    *
    * @return string
-   * @throws InvalidArgumentException if $name can't be normalized.
+   * @throws InvalidArgumentException if $name can't be sanitized.
    */
-  static public function normalizeClassname( $name )
+  static public function sanitizeClassname( $name )
   {
     if( ! is_string($name) )
     {
@@ -76,7 +76,7 @@ abstract class Test_Browser_Plugin
 
     if( ! class_exists($name) )
     {
-      $altname = 'Test_Browser_Plugin_' . $name;
+      $altname = 'Test_Browser_Plugin_' . ucfirst($name);
 
       if( class_exists($altname) )
       {

@@ -35,7 +35,7 @@ class Test_Browser extends Test_ObjectWrapper
   {
     if( empty($this->_plugins[$name]) )
     {
-      $class = Test_Browser_Plugin::normalizeClassname($name);
+      $class = Test_Browser_Plugin::sanitizeClassname($name);
 
       /* @var $Plugin Test_Browser_Plugin */
       $Plugin = new $class($this);
@@ -91,6 +91,22 @@ class Test_Browser extends Test_ObjectWrapper
   public function isCalled(  )
   {
     return $this->_isCalled;
+  }
+
+  /** Handles an attempt to call a non-existent method.
+   *
+   * @param string $meth
+   *
+   * @return void
+   * @throws BadMethodCallException
+   */
+  protected function handleBadMethodCall( $meth )
+  {
+    throw new BadMethodCallException(sprintf(
+      'Call to undefined method %s->%s() - did you forget to call usePlugin()?',
+        __CLASS__,
+        $meth
+    ));
   }
 
   /** Returns the content of elements that match a CSS selector.
