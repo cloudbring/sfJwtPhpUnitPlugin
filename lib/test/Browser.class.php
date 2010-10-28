@@ -141,15 +141,4 @@ class Test_Browser extends Test_ObjectWrapper
         $meth
     ));
   }
-
-  /** Returns the content of elements that match a CSS selector.
-   *
-   * @param string $selector
-   *
-   * @return array(sfDomCssSelector)
-   */
-  public function select( $selector )
-  {
-    return $this->getResponseDomCssSelector()->matchAll($selector);
-  }
 }

@@ -95,4 +95,16 @@ class Test_Browser_Plugin_Content extends Test_Browser_Plugin
 
     return $res;
   }
+
+  /** Returns the content of elements that match a jQuery-style selector.
+   *
+   * @param string $selector
+   *
+   * @return array(sfDomCssSelector)
+   */
+  public function select( $selector )
+  {
+    return
+      $this->getBrowser()->getResponseDomCssSelector()->matchAll($selector);
+  }
 }
