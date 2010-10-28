@@ -4,7 +4,7 @@
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser
  */
-abstract class Test_Browser_Plugin
+abstract class Test_Browser_Plugin extends Test_ObjectWrapper
 {
   private
     /** @var Test_Browser */
