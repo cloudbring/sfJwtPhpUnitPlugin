@@ -27,6 +27,18 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
    */
   abstract public function invoke( /* $param, ... */ );
 
+  /** Initialize the plugin.
+   *
+   * This gets called when the plugin is instantiated and before every browser
+   *  request.  It should clear out any values from the previous request.
+   *
+   * @return void
+   */
+  public function initialize(  )
+  {
+    $this->setEncapsulatedObject(null);
+  }
+
   /** Init the class instance.
    *
    * @param Test_Browser $Browser
@@ -36,6 +48,7 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
   final public function __construct( Test_Browser $Browser )
   {
     $this->_browser = $Browser;
+    $this->initialize();
   }
 
   /** Accessor for the corresponding browser object.

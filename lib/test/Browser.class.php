@@ -71,6 +71,12 @@ class Test_Browser extends Test_ObjectWrapper
    */
   public function call( $uri, $method = 'get', $parameters = array(), $changeStack = true )
   {
+    /* @var $Plugin Test_Browser_Plugin */
+    foreach( $this->_plugins as $Plugin )
+    {
+      $Plugin->initialize();
+    }
+
     $this->getEncapsulatedObject()->call(
       $uri,
       $method,
