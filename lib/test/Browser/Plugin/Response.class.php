@@ -26,9 +26,7 @@ class Test_Browser_Plugin_Response extends Test_Browser_Plugin
   {
     if( ! $this->hasEncapsulatedObject() )
     {
-      $this->setEncapsulatedObject(
-        $this->getBrowser()->getResponse()
-      );
+      $this->setEncapsulatedObject($this->getBrowser()->getResponse());
     }
 
     return $this;
