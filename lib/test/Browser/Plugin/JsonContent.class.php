@@ -27,13 +27,15 @@ class Test_Browser_Plugin_JsonContent extends Test_Browser_Plugin
    */
   public function invoke( $assoc = false )
   {
-    $res = json_decode($this->getBrowser()->getContent(), $assoc);
+    $content  = $this->getBrowser()->getContent();
+    $res      = json_decode($content, $assoc);
 
-    if( is_null($res) )
+    if( $res === null and $content != json_encode(null) )
     {
+      /* Output the content in the Exception for easy debugging. */
       throw new RuntimeException(sprintf(
         "Invalid JSON Content:\n\n%s",
-          $this->getBrowser()->getContent()
+          $content
       ));
     }
 
