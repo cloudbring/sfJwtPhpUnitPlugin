@@ -60,6 +60,32 @@ class Test_Browser extends Test_ObjectWrapper
     return $this;
   }
 
+  /** Gets a URI.
+   *
+   * @param string $uri         The URI to fetch
+   * @param array  $parameters  The Request parameters
+   * @param bool   $changeStack  Change the browser history stack?
+   *
+   * @return Test_Browser($this)
+   */
+  public function get( $uri, $parameters = array(), $changeStack = true )
+  {
+    return $this->call($uri, 'get', $parameters, $changeStack);
+  }
+
+  /** Posts a URI.
+   *
+   * @param string $uri         The URI to fetch
+   * @param array  $parameters  The Request parameters
+   * @param bool   $changeStack  Change the browser history stack?
+   *
+   * @return Test_Browser($this)
+   */
+  public function post( $uri, $parameters = array(), $changeStack = true )
+  {
+    return $this->call($uri, 'post', $parameters, $changeStack);
+  }
+
   /** Execute a browser request.
    *
    * @param string $uri          The URI to fetch
