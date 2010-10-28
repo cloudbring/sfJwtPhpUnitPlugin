@@ -26,6 +26,7 @@ class Test_Browser extends Test_ObjectWrapper
 
     /* Activate commonly-used plugins. */
     $this->usePlugin(
+      'content',
       'form',
       'error'
     );
@@ -157,14 +158,5 @@ class Test_Browser extends Test_ObjectWrapper
   public function getStatusCode(  )
   {
     return $this->getResponse()->getStatusCode();
-  }
-
-  /** Shortcut for getting the content from the response.
-   *
-   * @return string
-   */
-  public function getContent(  )
-  {
-    return $this->getResponse()->getContent();
   }
 }
