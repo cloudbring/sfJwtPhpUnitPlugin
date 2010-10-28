@@ -22,7 +22,7 @@ class Test_Browser_Plugin_SerializedContent extends Test_Browser_Plugin
    *
    * @return mixed
    */
-  public function getSerializedContent(  )
+  public function invoke(  )
   {
     $content  = $this->getBrowser()->getContent();
     $res      = @unserialize($content);
