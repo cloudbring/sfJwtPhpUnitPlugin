@@ -19,15 +19,6 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
    */
   abstract public function getMethodName(  );
 
-  /** Initialize the plugin.  Invoked right after a get() or post() call
-   *   finishes.
-   *
-   * @return void
-   */
-  public function initialize(  )
-  {
-  }
-
   /** Invokes the plugin.
    *
    * @param mixed,...

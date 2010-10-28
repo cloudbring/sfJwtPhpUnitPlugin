@@ -54,11 +54,6 @@ class Test_Browser extends Test_ObjectWrapper
           $Plugin->getMethodName(),
           array($Plugin, 'invoke')
         );
-
-        if( $this->isCalled() )
-        {
-          $Plugin->initialize();
-        }
       }
     }
 
@@ -83,12 +78,6 @@ class Test_Browser extends Test_ObjectWrapper
       $changeStack
     );
     $this->_isCalled = true;
-
-    /* @var $Plugin Test_Browser_Plugin */
-    foreach( $this->_plugins as $Plugin )
-    {
-      $Plugin->initialize();
-    }
 
     return $this;
   }

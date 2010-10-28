@@ -18,37 +18,32 @@ class Test_Browser_Plugin_Form extends Test_Browser_Plugin
     return 'getForm';
   }
 
-  /** Initialize the plugin.  Invoked right after a get() or post() call
-   *   finishes.
-   *
-   * @return void
-   */
-  public function initialize(  )
-  {
-    $Action =
-      $this->getBrowser()
-        ->getContext()
-          ->getActionStack()
-          ->getLastEntry()
-            ->getActionInstance();
-
-    foreach( $Action->getVarHolder()->getAll() as $name => $value )
-    {
-      if( $value instanceof sfForm and $value->isBound() )
-      {
-        $this->setEncapsulatedObject($value);
-      }
-    }
-  }
-
   /** Returns a reference to the sfForm instance from the action stack.
-   * 
+   *
    * Note:  If no form was submitted, this method returns null.
    *
    * @return Test_Browser_Plugin_Form($this)|null
    */
   public function invoke(  )
   {
+    if( ! $this->hasEncapsulatedObject() )
+    {
+      $Action =
+        $this->getBrowser()
+          ->getContext()
+            ->getActionStack()
+            ->getLastEntry()
+              ->getActionInstance();
+
+      foreach( $Action->getVarHolder()->getAll() as $name => $value )
+      {
+        if( $value instanceof sfForm and $value->isBound() )
+        {
+          $this->setEncapsulatedObject($value);
+        }
+      }
+    }
+
     return $this->hasEncapsulatedObject() ? $this : null;
   }
 }
