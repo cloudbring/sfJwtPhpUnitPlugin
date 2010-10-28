@@ -7,20 +7,90 @@
  * @package jwt
  * @subpackage lib.test
  */
-class Test_Browser extends sfBrowser
+class Test_Browser extends Test_ObjectWrapper
 {
-  /** /dev/null method used to prevent errors in tests that expect this method
-   *   to exist.
+  private
+    $_isCalled,
+    $_plugins;
+
+  /** Init the class instance.
+   *
+   * @return void
+   */
+  public function __construct(  )
+  {
+    $this->_isCalled  = false;
+    $this->_plugins   = array();
+
+    $this->setEncapsulatedObject('sfBrowser');
+  }
+
+  /** Activate a plugin.
    *
    * @param $name
    *
    * @return Test_Browser($this)
-   *
-   * @todo Get plugins working again!
    */
   public function usePlugin( $name )
   {
+    if( empty($this->_plugins[$name]) )
+    {
+      $class = Test_Browser_Plugin::normalizeClassname($name);
+
+      /* @var $Plugin Test_Browser_Plugin */
+      $Plugin = new $class($this);
+
+      $this->_plugins[$name] = $Plugin;
+
+      $this->injectDynamicMethod(
+        $Plugin->getMethodName(),
+        array($Plugin, 'invoke')
+      );
+
+      if( $this->isCalled() )
+      {
+        $Plugin->initialize();
+      }
+    }
+
     return $this;
+  }
+
+  /** Execute a browser request.
+   *
+   * @param string $uri          The URI to fetch
+   * @param string $method       The request method
+   * @param array  $parameters   The Request parameters
+   * @param bool   $changeStack  Change the browser history stack?
+   *
+   * @return Test_Browser($this)
+   */
+  public function call( $uri, $method = 'get', $parameters = array(), $changeStack = true )
+  {
+    $this->getEncapsulatedObject()->call(
+      $uri,
+      $method,
+      $parameters,
+      $changeStack
+    );
+    $this->_isCalled = true;
+
+    /* @var $Plugin Test_Browser_Plugin */
+    foreach( $this->_plugins as $Plugin )
+    {
+      $Plugin->initialize();
+    }
+
+    return $this;
+  }
+
+  /** Returns whether the browser has made a request yet.
+   *
+   * @return bool
+   */
+  public function isCalled(  )
+  {
+    return $this->_isCalled;
   }
 
   /** Returns the content of elements that match a CSS selector.
@@ -32,28 +102,6 @@ class Test_Browser extends sfBrowser
   public function select( $selector )
   {
     return $this->getResponseDomCssSelector()->matchAll($selector);
-  }
-
-  /** Returns JSON-encoded content from a request as an object.
-   *
-   * @param bool $assoc If true, JS objects will be converted to associative
-   *  arrays instead of stdClass instances.
-   *
-   * @return mixed
-   */
-  public function getJsonContent( $assoc = false )
-  {
-    $res = json_decode($this->getContent(), $assoc);
-
-    if( is_null($res) )
-    {
-      throw new Exception(sprintf(
-        "Invalid JSON Content:\n\n%s",
-          $this->getContent()
-      ));
-    }
-
-    return $res;
   }
 
   /** Returns serialized content from a request as an object.
