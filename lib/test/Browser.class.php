@@ -135,13 +135,4 @@ class Test_Browser extends Test_ObjectWrapper
   {
     return $this->getResponse()->getContent();
   }
-
-  /** Returns the email logger from the browser context.
-   *
-   * @return sfMailerMessageLoggerPlugin
-   */
-  public function getMailer(  )
-  {
-    return $this->getContext()->getMailer()->getLogger();
-  }
 }
