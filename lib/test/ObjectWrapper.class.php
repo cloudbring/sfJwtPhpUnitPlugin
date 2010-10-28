@@ -5,9 +5,6 @@
  *  protected properties/methods of the wrapped instance; the wrapper can only
  *  add or overwrite functionality.
  *
- * NB:  Note that all passthrough methods will silently fail if no object is
- *  attached.
- *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
  */
@@ -17,11 +14,28 @@ abstract class Test_ObjectWrapper
     $_encapsulatedObject,
     $_injectedMethods;
 
+  /** Handles an attempt to call a non-existent method.
+   *
+   * You might want to overwrite this method in your subclass.
+   *
+   * @param string $meth
+   *
+   * @return mixed
+   *
+   * @access protected Should only be invoked by subclass.
+   */
+  protected function handleBadMethodCall( $meth )
+  {
+    return null;
+  }
+
   /** Accessor for $_encapsulatedObject.
    *
    * @return object|null
+   *
+   * @access protected Should only be invoked by subclass.
    */
-  public function getEncapsulatedObject(  )
+  protected function getEncapsulatedObject(  )
   {
     return $this->_encapsulatedObject;
   }
@@ -243,13 +257,17 @@ abstract class Test_ObjectWrapper
     {
       return call_user_func_array($callable, $args);
     }
+    elseif( $this->hasEncapsulatedObject() )
+    {
+      if( method_exists($this->getEncapsulatedObject(), $meth) )
+      {
+        return call_user_func_array(
+          array($this->getEncapsulatedObject(), $meth),
+          $args
+        );
+      }
+    }
 
-    return
-      $this->hasEncapsulatedObject()
-        ? call_user_func_array(
-            array($this->getEncapsulatedObject(), $meth),
-            $args
-          )
-        : null;
+    return $this->handleBadMethodCall($meth);
   }
 }
