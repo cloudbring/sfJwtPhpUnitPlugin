@@ -23,6 +23,9 @@ class Test_Browser extends Test_ObjectWrapper
     $this->_plugins   = array();
 
     $this->setEncapsulatedObject('sfBrowser');
+
+    /* Activate commonly-used plugins. */
+    $this->usePlugin('error');
   }
 
   /** Activate a plugin.
@@ -136,18 +139,6 @@ class Test_Browser extends Test_ObjectWrapper
   public function getContent(  )
   {
     return $this->getResponse()->getContent();
-  }
-
-  /** Returns the message of an uncaught exception, if one exists.
-   *
-   * @return string
-   */
-  public function getError(  )
-  {
-    return
-      $this->checkCurrentExceptionIsEmpty()
-        ? ''
-        : $this->getCurrentException()->getMessage();
   }
 
   /** Returns the sfForm instance from the action stack.
