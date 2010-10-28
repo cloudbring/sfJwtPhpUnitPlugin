@@ -28,7 +28,8 @@ class Test_Browser extends Test_ObjectWrapper
     $this->usePlugin(
       'content',
       'error',
-      'form'
+      'form',
+      'response'
     );
   }
 
