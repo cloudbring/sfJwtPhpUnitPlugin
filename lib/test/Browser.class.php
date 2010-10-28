@@ -152,13 +152,4 @@ class Test_Browser extends Test_ObjectWrapper
   {
     return $this->getResponseDomCssSelector()->matchAll($selector);
   }
-
-  /** Shortcut for getting the status code from the response.
-   *
-   * @return int
-   */
-  public function getStatusCode(  )
-  {
-    return $this->getResponse()->getStatusCode();
-  }
 }
