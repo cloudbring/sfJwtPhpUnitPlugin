@@ -29,6 +29,7 @@ class Test_Browser extends Test_ObjectWrapper
       'content',
       'error',
       'form',
+      'request',
       'response'
     );
   }
