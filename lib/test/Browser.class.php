@@ -25,34 +25,40 @@ class Test_Browser extends Test_ObjectWrapper
     $this->setEncapsulatedObject('sfBrowser');
 
     /* Activate commonly-used plugins. */
-    $this->usePlugin('error');
+    $this->usePlugin(
+      'form',
+      'error'
+    );
   }
 
   /** Activate a plugin.
    *
-   * @param $name
+   * @param string,... $plugin_name
    *
    * @return Test_Browser($this)
    */
-  public function usePlugin( $name )
+  public function usePlugin( $plugin_name/*, ... */ )
   {
-    if( empty($this->_plugins[$name]) )
+    foreach( func_get_args() as $name )
     {
-      $class = Test_Browser_Plugin::sanitizeClassname($name);
-
-      /* @var $Plugin Test_Browser_Plugin */
-      $Plugin = new $class($this);
-
-      $this->_plugins[$name] = $Plugin;
-
-      $this->injectDynamicMethod(
-        $Plugin->getMethodName(),
-        array($Plugin, 'invoke')
-      );
-
-      if( $this->isCalled() )
+      if( empty($this->_plugins[$name]) )
       {
-        $Plugin->initialize();
+        $class = Test_Browser_Plugin::sanitizeClassname($name);
+
+        /* @var $Plugin Test_Browser_Plugin */
+        $Plugin = new $class($this);
+
+        $this->_plugins[$name] = $Plugin;
+
+        $this->injectDynamicMethod(
+          $Plugin->getMethodName(),
+          array($Plugin, 'invoke')
+        );
+
+        if( $this->isCalled() )
+        {
+          $Plugin->initialize();
+        }
       }
     }
 
@@ -139,29 +145,6 @@ class Test_Browser extends Test_ObjectWrapper
   public function getContent(  )
   {
     return $this->getResponse()->getContent();
-  }
-
-  /** Returns the sfForm instance from the action stack.
-   *
-   * @return sfForm|null
-   */
-  public function getForm(  )
-  {
-    $Action =
-      $this->getContext()
-        ->getActionStack()
-        ->getLastEntry()
-          ->getActionInstance();
-
-    foreach( $Action->getVarHolder()->getAll() as $name => $value )
-    {
-      if( $value instanceof sfForm and $value->isBound() )
-      {
-        return $value;
-      }
-    }
-
-    return null;
   }
 
   /** Returns the email logger from the browser context.
