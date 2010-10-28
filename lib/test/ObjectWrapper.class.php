@@ -246,6 +246,12 @@ abstract class Test_ObjectWrapper
 
   /** Pass-through for generic method handler.
    *
+   * Note that injected dynamic methods are checked before checking the
+   *  encapsulated object.
+   *
+   * Note also that handleBadMethodCall() will be invoked if no method can be
+   *  found that matches the requested method name.
+   *
    * @param string $meth
    * @param array  $args
    *
