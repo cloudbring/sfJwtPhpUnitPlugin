@@ -41,11 +41,11 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
 
   /** Init the class instance.
    *
-   * @param Test_Browser $Browser
+   * @param sfBrowserBase $Browser
    *
    * @return void
    */
-  final public function __construct( Test_Browser $Browser )
+  final public function __construct( sfBrowserBase $Browser )
   {
     $this->_browser = $Browser;
     $this->initialize();

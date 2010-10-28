@@ -27,8 +27,8 @@ class Test_Browser extends Test_ObjectWrapper
     /* Activate commonly-used plugins. */
     $this->usePlugin(
       'content',
-      'form',
-      'error'
+      'error',
+      'form'
     );
   }
 
@@ -47,7 +47,7 @@ class Test_Browser extends Test_ObjectWrapper
         $class = Test_Browser_Plugin::sanitizeClassname($name);
 
         /* @var $Plugin Test_Browser_Plugin */
-        $Plugin = new $class($this);
+        $Plugin = new $class($this->getEncapsulatedObject());
 
         $this->_plugins[$name] = $Plugin;
 
