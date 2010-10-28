@@ -104,25 +104,6 @@ class Test_Browser extends Test_ObjectWrapper
     return $this->getResponseDomCssSelector()->matchAll($selector);
   }
 
-  /** Returns serialized content from a request as an object.
-   *
-   * @return mixed
-   */
-  public function getSerializedContent(  )
-  {
-    $res = @unserialize($this->getContent());
-
-    if( $res === false and $this->getContent() !== serialize(false) )
-    {
-      throw new Exception(sprintf(
-        "Invalid serialized content:\n\n%s",
-          $this->getContent()
-      ));
-    }
-
-    return $res;
-  }
-
   /** Shortcut for getting the status code from the response.
    *
    * @return int
