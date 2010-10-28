@@ -18,23 +18,31 @@ class Test_Browser_Plugin_Error extends Test_Browser_Plugin
     return 'getError';
   }
 
-  /** Returns the message of an uncaught exception, if one exists.
+  /** Returns a reference to the uncaught exception from the application.
    *
-   * @param bool $asObject If true, returns the Exception instance itself.
-   *
-   * @return string|Exception|null
+   * @return Test_Browser_Plugin_Error($this)
    */
-  public function invoke( $asObject = false )
+  public function invoke(  )
   {
-    if( ! $this->getBrowser()->checkCurrentExceptionIsEmpty() )
+    if( ! $this->hasEncapsulatedObject() )
     {
-      /* @var $Exception Exception */
-      if( $Exception = $this->getBrowser()->getCurrentException() )
+      if( ! $this->getBrowser()->checkCurrentExceptionIsEmpty() )
       {
-        return $asObject ? $Exception : $Exception->getMessage();
+        $this->setEncapsulatedObject(
+          $this->getBrowser()->getCurrentException()
+        );
       }
     }
 
-    return $asObject ? null : '';
+    return $this;
+  }
+
+  /** Return a string representation of the error (i.e., the error message).
+   *
+   * @return string
+   */
+  public function __toString(  )
+  {
+    return (string) $this->getMessage();
   }
 }
