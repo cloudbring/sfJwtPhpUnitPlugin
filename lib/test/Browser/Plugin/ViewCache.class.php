@@ -36,27 +36,49 @@ class Test_Browser_Plugin_ViewCache extends Test_Browser_Plugin
     return $this->hasEncapsulatedObject() ? $this : null;
   }
 
-  /** Returns whether the specified URL has been cached.
+  /** Returns whether the specified URL has been cached properly.
    *
    * @param string $uri         If not specified, the browser object's current
    *  URI (cache key) will be used.
-   * @param bool   $with_layout If true, layout must also be cached to pass.
+   * @param bool   $with_layout If set, with_layout setting must also match.
    *
    * @return bool
    */
-  public function isUriCached( $uri = null, $with_layout = false )
+  public function isUriCached( $uri = null, $with_layout = null )
   {
     if( ! $uri )
     {
       $uri = $this->getCurrentCacheKey();
     }
 
-    if( $this->has($uri) and $this->withLayout($uri) == $with_layout )
+    if( $this->has($uri) )
     {
-      $cached = unserialize($this->get($uri))->getContent();
+      if( ! ($with_layout === null or $this->withLayout($uri) == $with_layout) )
+      {
+        return false;
+      }
+
+      $cached = $this->getContent($uri);
       return $cached == $this->getBrowser()->getContent();
     }
 
     return false;
+  }
+  
+  /** Returns the HTML content of a cached URI.
+   * 
+   * @param string $uri If not specified, the browser object's current URI
+   *  (cache key) will be used.
+   * 
+   * @return string
+   */
+  public function getContent( $uri )
+  {
+    if( ! $uri )
+    {
+      $uri = $this->getCurrentCacheKey();
+    }
+    
+    return $this->has($uri) ? unserialize($this->get($uri))->getContent() : '';
   }
 }
