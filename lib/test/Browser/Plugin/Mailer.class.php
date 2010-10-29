@@ -53,7 +53,7 @@ class Test_Browser_Plugin_Mailer extends Test_Browser_Plugin
    *
    * @return array(Swift_Message)
    */
-  public function getMessagesMatching( $field, $value )
+  public function getMessagesWith( $field, $value )
   {
     $messages = array();
 
