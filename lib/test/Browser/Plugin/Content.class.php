@@ -60,6 +60,7 @@ class Test_Browser_Plugin_Content extends Test_Browser_Plugin
    *  arrays instead of stdClass instances.
    *
    * @return mixed
+   * @throws RuntimeException if the response content is not well-formed.
    */
   public function decodeJson( $assoc = false )
   {
@@ -80,6 +81,7 @@ class Test_Browser_Plugin_Content extends Test_Browser_Plugin
   /** Parse content as serialize()'d.
    *
    * @return mixed
+   * @throws RuntimeException if the response content is not well-formed.
    */
   public function unserialize(  )
   {
@@ -87,7 +89,7 @@ class Test_Browser_Plugin_Content extends Test_Browser_Plugin
 
     if( $res === false and $this->_content !== serialize(false) )
     {
-      throw new Exception(sprintf(
+      throw new RuntimeException(sprintf(
         "Invalid serialized content:\n\n%s",
           $this->_content
       ));
