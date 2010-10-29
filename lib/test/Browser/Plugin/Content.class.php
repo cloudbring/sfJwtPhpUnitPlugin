@@ -96,7 +96,7 @@ class Test_Browser_Plugin_Content extends Test_Browser_Plugin
     return $res;
   }
 
-  /** Returns the content of elements that match a jQuery-style selector.
+  /** Returns elements in the response DOM that match a jQuery-style selector.
    *
    * @param string $selector
    *
