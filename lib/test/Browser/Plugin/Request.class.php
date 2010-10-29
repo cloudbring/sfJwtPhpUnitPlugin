@@ -38,6 +38,7 @@ class Test_Browser_Plugin_Request extends Test_Browser_Plugin
    */
   public function isForwarded(  )
   {
+    return $this->getBrowser()->getContext()->getActionStack()->getSize() > 1;
   }
 
   /** Returns the stack entry that the request was forwarded to.
