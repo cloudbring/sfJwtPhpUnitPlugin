@@ -45,40 +45,47 @@ class Test_Browser_Plugin_Request extends Test_Browser_Plugin
    *
    * @param $pos Position in the stack to reference.
    *
-   * @return sfActionStackEntry
+   * @return sfActionStackEntry|null Only returns a value if the request was
+   *  forwarded.
    */
   public function getForwardedActionStackEntry( $pos = 'last' )
   {
-    /* @var $Stack sfActionStack */
-    $Stack = $this->getBrowser()->getContext()->getActionStack();
-
-    switch( $pos )
+    if( $this->isForwarded() )
     {
-      case 'last':  $Entry = $Stack->getLastEntry();  break;
-      case 'first': $Entry = $Stack->getFirstEntry(); break;
-      default:      $Entry = $Stack->getEntry($pos);  break;
-    }
+      /* @var $Stack sfActionStack */
+      $Stack = $this->getBrowser()->getContext()->getActionStack();
 
-    return $Entry;
+      switch( $pos )
+      {
+        case 'last':  $Entry = $Stack->getLastEntry();  break;
+        case 'first': $Entry = $Stack->getFirstEntry(); break;
+        default:      $Entry = $Stack->getEntry($pos);  break;
+      }
+
+      return $Entry;
+    }
   }
 
   /** Returns the action and module name that the request was forwarded to.
    *
    * @param $pos Position in the stack to reference.
    *
-   * @return array(
-   *  'module'  => (string; module name),
-   *  'action'  => (string; action name)
-   * )
+   * @return array|void Only returns a value if the request was forwarded.
+   *
+   *  array(
+   *    'module'  => (string; module name),
+   *    'action'  => (string; action name)
+   *  )
    */
   public function getForwardedArray( $pos = 'last' )
   {
-    $Entry = $this->getForwardedActionStackEntry($pos);
-
-    return array(
-      'module'  => $Entry->getModuleName(),
-      'action'  => $Entry->getActionName()
-    );
+    if( $Entry = $this->getForwardedActionStackEntry($pos) )
+    {
+      return array(
+        'module'  => $Entry->getModuleName(),
+        'action'  => $Entry->getActionName()
+      );
+    }
   }
 
   /** Returns the action and module name that the request was forwarded to, in
@@ -86,12 +93,13 @@ class Test_Browser_Plugin_Request extends Test_Browser_Plugin
    *
    * @param $pos Position in the stack to reference.
    *
-   * @return string "module/action"
+   * @return string|void e.g., "module/action" if the request was forwarded.
    */
   public function getForwardedString( $pos = 'last' )
   {
-    $Entry = $this->getForwardedActionStackEntry($pos);
-
-    return sprintf('%s/%s', $Entry->getModuleName(), $Entry->getActionName());
+    if( $Entry = $this->getForwardedActionStackEntry($pos) )
+    {
+      return sprintf('%s/%s', $Entry->getModuleName(), $Entry->getActionName());
+    }
   }
 }
