@@ -76,4 +76,36 @@ class Test_Browser_Plugin_Mailer extends Test_Browser_Plugin
 
     return $messages;
   }
+
+  /** Similar to getMessagesWith(), but uses a regular expression to match
+   *   values.
+   *
+   * @param string          $field
+   * @param string(regexp)  $regexp
+   *
+   * @return array(Swift_Message)
+   */
+  public function getMessagesLike( $field, $regexp )
+  {
+    $messages = array();
+
+    /* @var $Message Swift_Message */
+    foreach( $this->getMessages() as $Message )
+    {
+      if( $headers = $Message->getHeaders()->getAll($field) )
+      {
+        /* @var $Header Swift_Mime_Header */
+        foreach( $headers as $Header )
+        {
+          if( preg_match($regexp, $Header->getFieldBody()) )
+          {
+            $messages[] = $Message;
+            break;
+          }
+        }
+      }
+    }
+
+    return $messages;
+  }
 }
