@@ -138,6 +138,9 @@ class Test_Browser extends Test_ObjectWrapper
     );
     $this->_isCalled = true;
 
+    /* Flush output buffer. */
+    ob_end_clean();
+
     return $this;
   }
 
