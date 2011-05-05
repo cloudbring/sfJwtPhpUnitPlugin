@@ -37,10 +37,10 @@ if( extension_loaded('xdebug') )
   xdebug_disable();
 }
 
-/** Add lib/vendor to include path. */
+/** Add lib/vendor/* to include path. */
 set_include_path(
     get_include_path() . PATH_SEPARATOR
-  . $basedir . '/lib/vendor'
+  . implode(PATH_SEPARATOR, sfFinder::type('dir')->maxdepth(1)->in($basedir . '/lib/vendor'))
 );
 
 /** Do not include this file in stack traces if/when tests fail. */
