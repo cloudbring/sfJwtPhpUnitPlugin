@@ -87,12 +87,16 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
   /** Given a plugin name, attempts to determine the correct corresponding
    *   classname.
    *
-   * @param string $name
+   * @param string  $name
+   * @param bool    $addPrefix If true, the default classname prefix for
+   *                            plugin classes ("Test_Browser_Plugin_") will be
+   *                            added if $name doesn't match a valid plugin
+   *                            class.
    *
    * @return string
    * @throws InvalidArgumentException if $name can't be sanitized.
    */
-  static public function sanitizeClassname( $name )
+  static public function sanitizeClassname( $name, $addPrefix = true )
   {
     if( ! is_string($name) )
     {
@@ -102,32 +106,32 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
       ));
     }
 
-    if( ! class_exists($name) )
+    if( class_exists($name) )
     {
-      $altname = 'Test_Browser_Plugin_' . ucfirst($name);
-
-      if( class_exists($altname) )
+      if( is_subclass_of($name, __CLASS__) )
       {
-        $name = $altname;
+        return $name;
       }
-      else
+      elseif( ! $addPrefix )
       {
         throw new InvalidArgumentException(sprintf(
-          'Unable to locate a plugin named "%s".',
-            $name
+          '%s is not a valid %s class.',
+            $name,
+            __CLASS__
         ));
       }
     }
-
-    if( ! is_subclass_of($name, __CLASS__) )
+    elseif( ! $addPrefix )
     {
       throw new InvalidArgumentException(sprintf(
-        '%s is not a valid %s class.',
-          $name,
-          __CLASS__
+        'No such class "%s".',
+          $name
       ));
     }
 
-    return $name;
+    /* If we get to this point, $name is not a valid plugin class, but
+     *  $addPrefix is true, so add the classname prefix and try again.
+     */
+    return self::sanitizeClassname(__CLASS__ . '_' . $name, false);
   }
 }
