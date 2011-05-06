@@ -132,6 +132,6 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
     /* If we get to this point, $name is not a valid plugin class, but
      *  $addPrefix is true, so add the classname prefix and try again.
      */
-    return self::sanitizeClassname(__CLASS__ . '_' . $name, false);
+    return self::sanitizeClassname(__CLASS__ . '_' . ucfirst($name), false);
   }
 }
