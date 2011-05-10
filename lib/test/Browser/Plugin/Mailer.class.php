@@ -101,6 +101,35 @@ class Test_Browser_Plugin_Mailer extends Test_Browser_Plugin
     return $messages;
   }
 
+  /** Similar to getMessagesWith(), but only returns the first message matching
+   *   the criterion.
+   *
+   * @param string $field
+   * @param string $value
+   *
+   * @return Swift_Message|null
+   */
+  public function getMessageWith( $field, $value )
+  {
+    /* @var $Message Swift_Message */
+    foreach( $this->getMessages() as $Message )
+    {
+      if( $headers = $Message->getHeaders()->getAll($field) )
+      {
+        /* @var $Header Swift_Mime_Header */
+        foreach( $headers as $Header )
+        {
+          if( $Header->getFieldBody() == $value )
+          {
+            return $Message;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
   /** Similar to getMessagesWith(), but uses a regular expression to match
    *   values.
    *
@@ -131,5 +160,34 @@ class Test_Browser_Plugin_Mailer extends Test_Browser_Plugin
     }
 
     return $messages;
+  }
+
+  /** Similar to getMessagesLike(), but only returns the first message matching
+   *   the criterion.
+   *
+   * @param string          $field
+   * @param string(regexp)  $regexp
+   *
+   * @return Swift_Message|null
+   */
+  public function getMessageLike( $field, $regexp )
+  {
+    /* @var $Message Swift_Message */
+    foreach( $this->getMessages() as $Message )
+    {
+      if( $headers = $Message->getHeaders()->getAll($field) )
+      {
+        /* @var $Header Swift_Mime_Header */
+        foreach( $headers as $Header )
+        {
+          if( preg_match($regexp, $Header->getFieldBody()) )
+          {
+            return $Message;
+          }
+        }
+      }
+    }
+
+    return null;
   }
 }
