@@ -256,10 +256,10 @@ A number of applications expose services that return serialized or JSON-encoded
   to handle this automatically:
 
 <pre>
-# sf_test_dir/functional/frontend/like/add.php
+# sf_test_dir/functional/frontend/do/like.php
 
 &lt;?php
-class frontend_like_addTest extends Test_Case_Functional
+class frontend_do_likeTest extends Test_Case_Functional
 {
   public function testSuccess(  )
   {
