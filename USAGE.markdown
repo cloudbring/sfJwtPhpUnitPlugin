@@ -498,9 +498,6 @@ class frontend_main_reportissueTest extends Test_Case_Functional
 }
 </pre>
 
-* `sfError404Exception` is not considered an error and will not be caught by the
-  plugin.
-
 * Since 500 errors are generally not considered to be desirable behavior, you
   will probably end up using this plugin to debug your application rather than
   as part of a test or assertion.
