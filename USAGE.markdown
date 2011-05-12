@@ -413,7 +413,7 @@ The Request and Response plugins provide access to forwarding and redirecting
   information, respectively.
 
 * For an explanation of the difference between redirecting and forwarding,
-  see [this blog post](http://firebird84vn.wordpress.com/category/symfony/).
+  see [this blog post](http://firebird84vn.wordpress.com/2007/06/30/skipping-to-another-action/).
 
 <pre>
 # sf_test_dir/functional/frontend/contactus/reportissue.php
