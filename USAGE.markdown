@@ -1142,11 +1142,11 @@ Description:
   applicable) from file paths.
 
   For example, to run the unit tests located in
-  `sf_test_dir/unit/lib/widgetApi/WidgetService.class.php` and
+  `sf_test_dir/unit/lib/WidgetService.class.php` and
   `sf_test_dir/unit/lib/model/doctrine/*`, both of these commands will work:
 
-  * `./symfony phpunit:unit lib/widgetApi/WidgetService lib/model/doctrine`
-  * `./symfony phpunit:unit lib/widgetApi/WidgetService.class.php lib/model/doctrine/*`
+  * `./symfony phpunit:unit lib/WidgetService lib/model/doctrine`
+  * `./symfony phpunit:unit lib/WidgetService.class.php lib/model/doctrine/*`
 
 * If you organize and name your unit test files to mirror your production code
   files, you can leverage readline's autocompletion feature to save yourself
