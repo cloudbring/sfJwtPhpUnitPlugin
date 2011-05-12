@@ -313,17 +313,17 @@ class frontend_main_reportissueTest extends Test_Case_Functional
     /* The Form plugin has to be activated before it can be used. */
     $this->_browser->usePlugin('form');
 
-    $this->_browser
-      ->get('/contactus/reportissue')
-      ->click('Submit', array(
-          'issue' => array(
-            'firstname'   => 'Functional',
-            'lastname'    => 'Tester',
-            'email'       => 'functional_tester@jwt.com',
-            'description' => 'This is a test form submission.'
-          )
-        ));
+    $this->_browser->get('/contactus/reportissue');
     $this->assertStatusCode(200);
+
+    $this->_browser->click('Submit', array(
+      'issue' => array(
+        'firstname'   => 'Functional',
+        'lastname'    => 'Tester',
+        'email'       => 'functional_tester@jwt.com',
+        'description' => 'This is a test form submission.'
+      )
+    ));
 
     /* Access the submitted form. */
     $Form = $this->_browser->getForm();
