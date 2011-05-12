@@ -1174,11 +1174,11 @@ Description:
   `sf_test_dir/functional`.
 
   For example, to run the functional tests located in
-  `sf_test_dir/functional/frontend/api/set_featuredStory.php` and
+  `sf_test_dir/functional/frontend/api/publish.php` and
   `sf_test_dir/functional/frontend/ajax/*`, both of these commands will work:
 
-  * `./symfony phpunit:functional frontend/api/setFeaturedStory frontend/ajax`
-  * `./symfony phpunit:functional frontend/api/setFeaturedStory.php frontend/ajax/*`
+  * `./symfony phpunit:functional frontend/api/publish frontend/ajax`
+  * `./symfony phpunit:functional frontend/api/publish.php frontend/ajax/*`
 
 * JPUP currently runs all tests in the same PHP instance.  Be aware that a fatal
   error will be generated if there are tests for two classes in different
