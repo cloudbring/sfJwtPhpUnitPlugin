@@ -18,6 +18,7 @@ Before embarking upon development for JPUP, we took a look around, and while we
   found that none of them quite met our needs.
 
 The most critical problems we set out to solve with JPUP are:
+
 - Isolation from production data and files in a project.
 - Easy (but powerful!) data manipulation and fixture integration.
 - A port of `sfTestFunctional` that has `sfBrowser`'s API but doesn't use Lime.
