@@ -17,8 +17,11 @@ Before embarking upon development for JPUP, we took a look around, and while we
   did discover a number of existing solutions that worked fantastically, we
   found that none of them quite met our needs.
 
-We also felt that our approach to plugin design doesn't quite mesh with those of
-  the other plugins out there, so we decided to create our own.
+The most critical problems we set out to solve with JPUP are:
+- Isolation from production data and files in a project.
+- Easy (but powerful!) data manipulation and fixture integration.
+- A port of `sfTestFunctional` that has `sfBrowser`'s API but doesn't use Lime.
+- Using Symfony tasks to run multiple tests in one go.
 
 ## Compatibility ##
 JPUP was developed specifically for projects using Symfony 1.4/Doctrine/MySQL.
