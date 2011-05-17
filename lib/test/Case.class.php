@@ -259,13 +259,10 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       }
       else
       {
-        self::$_appConfigs[$this->_application] =
-          ProjectConfiguration::getApplicationConfiguration(
-            $this->_application,
-            self::DEFAULT_ENVIRONMENT,
-            true,
-
-            /* 1 %SF_ROOT_DIR%
+        $projectDir = sfConfig::get('sf_root_dir');
+        if( $projectDir == '' )
+        {
+          /* 1 %SF_ROOT_DIR%
              * 2   plugins/
              * 3     sfJwtPhpUnitPlugin/
              * 4       lib/
@@ -273,7 +270,15 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
              *
              * * = dirname(__FILE__)
              */
-            realpath(dirname(__FILE__) . '/../../../..')
+          $projectDir = realpath(dirname(__FILE__) . '/../../../..');
+        }
+
+        self::$_appConfigs[$this->_application] =
+          ProjectConfiguration::getApplicationConfiguration(
+            $this->_application,
+            self::DEFAULT_ENVIRONMENT,
+            true,
+            $projectDir
           );
         sfContext::createInstance(self::$_appConfigs[$this->_application]);
       }

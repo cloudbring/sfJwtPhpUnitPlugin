@@ -29,19 +29,21 @@
  * @subpackage test.bootstrap
  */
 
-$basedir = realpath(dirname(__FILE__) . '/../..');
+/** Check to see if PHPUnit is in PHP's include_path. */
+@include_once 'PHPUnit/Autoload.php';
+if( ! class_exists('PHPUnit_Framework_TestCase') )
+{
+  throw new RuntimeException(
+    'Unable to locate PHPUnit framework.  Please ensure that your include_path can find it:'
+      . PHP_EOL . PHP_EOL . get_include_path()
+  );
+}
 
 /** Disable conflicting extensions. */
 if( extension_loaded('xdebug') )
 {
   xdebug_disable();
 }
-
-/** Add lib/vendor/* to include path. */
-set_include_path(
-    get_include_path() . PATH_SEPARATOR
-  . implode(PATH_SEPARATOR, sfFinder::type('dir')->maxdepth(1)->in($basedir . '/lib/vendor'))
-);
 
 /** Do not include this file in stack traces if/when tests fail. */
 PHP_CodeCoverage_Filter::getInstance()->addFileToBlacklist(__FILE__, 'PHPUNIT');
