@@ -263,13 +263,13 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         if( $projectDir == '' )
         {
           /* 1 %SF_ROOT_DIR%
-             * 2   plugins/
-             * 3     sfJwtPhpUnitPlugin/
-             * 4       lib/
-             * *         test/
-             *
-             * * = dirname(__FILE__)
-             */
+           * 2   plugins/
+           * 3     sfJwtPhpUnitPlugin/
+           * 4       lib/
+           * *         test/
+           *
+           * * = dirname(__FILE__)
+           */
           $projectDir = realpath(dirname(__FILE__) . '/../../../..');
         }
 
