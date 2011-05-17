@@ -33,10 +33,10 @@ One of the goals we hope to achieve by releasing this plugin to the community is
   always welcome!
 
 ## Installation ##
-See INSTALL.markdown.
+See INSTALL.md.
 
 ## Usage ##
-See USAGE.markdown.
+See USAGE.md.
 
 ## Contributing ##
 We welcome any and all suggestions, requests, (constructive) criticism, code,
