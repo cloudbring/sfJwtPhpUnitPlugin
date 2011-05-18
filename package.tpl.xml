@@ -70,20 +70,73 @@
        <max>1.5.0</max>
        <exclude>1.5.0</exclude>
       </package>
-
-      <package>
-        <name>PHPUnit</name>
-        <channel>pear.phpunit.de</channel>
-        <min>3.5.0</min>
-        <max>3.6.0</max>
-        <exclude>3.6.0</exclude>
-      </package>
     </required>
   </dependencies>
 
   <phprelease />
 
   <changelog>
+    <release>
+      <date>2011-05-17</date>
+
+      <version>
+        <release>1.0.3</release>
+        <api>1.0.0</api>
+      </version>
+
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+
+      <license uri="https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/blob/master/LICENSE">MIT license</license>
+
+      <notes>
+        Changed baseinstalldir for root directory in package.xml.
+      </notes>
+    </release>
+
+    <release>
+      <date>2011-05-17</date>
+
+      <version>
+        <release>1.0.2</release>
+        <api>1.0.0</api>
+      </version>
+
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+
+      <license uri="https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/blob/master/LICENSE">MIT license</license>
+
+      <notes>
+        Changed root directory name in package.xml.
+      </notes>
+    </release>
+
+    <release>
+      <date>2011-05-17</date>
+
+      <version>
+        <release>1.0.1</release>
+        <api>1.0.0</api>
+      </version>
+
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+
+      <license uri="https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/blob/master/LICENSE">MIT license</license>
+
+      <notes>
+        Removed PHPUnit as a dependency, as `symfony plugin:install` will try to
+          install it in the wrong place.
+      </notes>
+    </release>
+
     <release>
       <date>2011-05-17</date>
 
