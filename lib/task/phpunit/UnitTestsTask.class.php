@@ -28,7 +28,7 @@
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.task.phpunit
  */
-class UnitTestsTask extends BasePhpunitTask
+class UnitTestsTask extends BasePhpunitRunnerTask
 {
   public function configure(  )
   {
