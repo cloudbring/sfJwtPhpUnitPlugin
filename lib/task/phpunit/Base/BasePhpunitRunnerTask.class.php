@@ -99,6 +99,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
    */
   protected function _runTests( array $options = array() )
   {
+    $this->__verifyPhpUnit();
     $this->_executeGlobalBootstrap();
     $this->_executeProjectBootstrap();
 
@@ -252,13 +253,10 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       'verbose'     => false
     );
 
-    $params = array_intersect_key(
-      $this->_validateInput($args, $opts, $allowed),
-      $allowed
-    );
-
+    $params = $this->_consolidateInput($args, $opts, $allowed, true);
     foreach( $params as $key => &$val )
     {
+      /* Coerce type. */
       if( isset($allowed[$key]) )
       {
         settype($val, gettype($allowed[$key]));

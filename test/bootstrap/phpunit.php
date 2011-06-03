@@ -29,16 +29,6 @@
  * @subpackage test.bootstrap
  */
 
-/** Check to see if PHPUnit is in PHP's include_path. */
-@include_once 'PHPUnit/Autoload.php';
-if( ! class_exists('PHPUnit_Framework_TestCase') )
-{
-  throw new RuntimeException(
-    'Unable to locate PHPUnit framework.  Please ensure that your include_path can find it:'
-      . PHP_EOL . PHP_EOL . get_include_path()
-  );
-}
-
 /** Disable conflicting extensions. */
 if( extension_loaded('xdebug') )
 {

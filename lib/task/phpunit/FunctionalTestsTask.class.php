@@ -55,7 +55,7 @@ END;
 
   public function execute( $args = array(), $opts = array() )
   {
-    $params       = $this->_validateInput($args, $opts);
+    $params       = $this->_consolidateInput($args, $opts);
     $this->_paths = (array) $params['path'];
 
     $this->_runTests($this->_validatePhpUnitInput($args, $opts));
