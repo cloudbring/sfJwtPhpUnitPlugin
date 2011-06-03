@@ -100,6 +100,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
   protected function _runTests( array $options = array() )
   {
     $this->_verifyPhpUnit();
+
     $this->_executeGlobalBootstrap();
     $this->_executeProjectBootstrap();
 
