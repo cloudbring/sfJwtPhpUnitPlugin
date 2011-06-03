@@ -24,9 +24,9 @@
 /** Runs all functional tests for a project.
  *
  * @author Phoenix Zerin <phoenix.zerin@jwt.com>
- * 
+ *
  * @package sfJwtPhpUnitPlugin
- * @subpackage lib.task
+ * @subpackage lib.task.phpunit
  */
 class FunctionalTestsTask extends BasePhpunitTask
 {

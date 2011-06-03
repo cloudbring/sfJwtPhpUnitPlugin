@@ -24,9 +24,9 @@
 /** Base functionality for PHPUnit-related tasks.
  *
  * @author Phoenix Zerin <phoenix.zerin@jwt.com>
- * 
+ *
  * @package sfJwtPhpUnitPlugin
- * @subpackage lib.task
+ * @subpackage lib.task.phpunit.base
  */
 abstract class BasePhpunitTask extends sfBaseTask
 {
