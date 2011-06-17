@@ -32,7 +32,6 @@ class GenerateUnitTestsTask extends BasePhpunitGeneratorTask
 {
   /**
    * @todo Add tokens option.
-   * @todo Add option to not generate skeleton tests.
    */
   public function configure(  )
   {
@@ -52,12 +51,22 @@ END;
         'Name of the class to generate unit tests for.'
       )
     ));
+
+    $this->addOptions(array(
+      new sfCommandOption(
+        'no-tests',
+        null,
+        sfCommandOption::PARAMETER_NONE,
+        'If set, an empty test case will be generated (no skeleton tests).'
+      )
+    ));
   }
 
   public function execute( $args = array(), $opts = array() )
   {
     $params = $this->_consolidateInput($args, $opts, array(
-      'class' => null
+      'class' => null,
+      'tests' => null
     ));
 
     $path = $this->_findClassFile($params['class']);
@@ -131,7 +140,7 @@ END;
       'PACKAGE'     => $this->_guessPackageName($ref),
       'SUBPACKAGE'  => $this->_guessSubpackageName($ref, 'test'),
 
-      'TESTS'       => $this->_generateTests($ref)
+      'TESTS'       => ($params['no-tests'] ? '' : $this->_generateTests($ref))
     ));
   }
 
