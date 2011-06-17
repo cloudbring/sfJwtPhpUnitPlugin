@@ -58,6 +58,13 @@ END;
         null,
         sfCommandOption::PARAMETER_NONE,
         'If set, an empty test case will be generated (no skeleton tests).'
+      ),
+
+      new sfCommandOption(
+        'verbose',
+        'v',
+        sfCommandOption::PARAMETER_NONE,
+        'If set, additional (mostly debugging) information will be output.'
       )
     ));
   }
@@ -65,9 +72,10 @@ END;
   public function execute( $args = array(), $opts = array() )
   {
     $params = $this->_consolidateInput($args, $opts, array(
-      'class' => null,
-      'tests' => null
-    ));
+      'class'     => null,
+      'no-tests'  => null,
+      'verbose'   => null
+    ), true);
 
     $path = $this->_findClassFile($params['class']);
 
@@ -82,6 +90,19 @@ END;
 
     $source = $this->_getBaseDir() . $path;
     $target = $this->_getBaseDir('test', array('unit')) . $path;
+
+    if( $params['verbose'] )
+    {
+      $this->logSection('info', sprintf(
+        'Source class file is %s.',
+          $source
+      ));
+
+      $this->logSection('info', sprintf(
+        'Target test case file is %s.',
+          $target
+      ));
+    }
 
     /* Verify the test file doesn't already exist. */
     if( file_exists($target) )
@@ -111,6 +132,14 @@ END;
             $skeleton
         ));
       }
+    }
+
+    if( $params['verbose'] )
+    {
+      $this->logSection('info', sprintf(
+        'Using skeleton test case at %s.',
+          $skeleton
+      ));
     }
 
     /* Set up the directory structure if necessary. */
