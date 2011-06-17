@@ -80,14 +80,14 @@ END;
       ));
     }
 
-    $source = $this->_getBaseDir('root') . $path;
-    $target = $this->_getBaseDir('test') . $path;
+    $source = $this->_getBaseDir() . $path;
+    $target = $this->_getBaseDir('test', array('unit')) . $path;
 
     /* Verify the test file doesn't already exist. */
     if( file_exists($target) )
     {
       throw new RuntimeException(sprintf(
-        'Test file already exists at sf_test_dir/%s.',
+        'Test file already exists at sf_test_dir/unit/%s.',
           $path
       ));
     }
@@ -208,7 +208,15 @@ END;
     /* @var $meth ReflectionMethod */
     foreach( $ref->getMethods(ReflectionMethod::IS_PUBLIC) as $meth )
     {
-      $str .= sprintf($template, $meth->getName());
+      $name = $meth->getName();
+
+      /* Skip magic methods and anything marked as non-api. */
+      if( $name[0] == '_' )
+      {
+        continue;
+      }
+
+      $str .= sprintf($template, ucfirst($name));
     }
 
     return $str;
