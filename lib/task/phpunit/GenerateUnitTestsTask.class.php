@@ -30,9 +30,6 @@
  */
 class GenerateUnitTestsTask extends BasePhpunitGeneratorTask
 {
-  /**
-   * @todo Add tokens option.
-   */
   public function configure(  )
   {
     parent::configure();
@@ -61,6 +58,13 @@ END;
       ),
 
       new sfCommandOption(
+        'token',
+        null,
+        sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY,
+        'Specify custom token names/values in key:value format (e.g., "PACKAGE:MyAwesomeProject").'
+      ),
+
+      new sfCommandOption(
         'verbose',
         'v',
         sfCommandOption::PARAMETER_NONE,
@@ -74,6 +78,7 @@ END;
     $params = $this->_consolidateInput($args, $opts, array(
       'class'     => null,
       'no-tests'  => null,
+      'token'     => array(),
       'verbose'   => null
     ), true);
 
@@ -142,6 +147,29 @@ END;
       ));
     }
 
+    /* Validate custom tokens. */
+    $customTokens = array();
+    if( $params['token'] )
+    {
+      foreach( (array) $params['token'] as $token )
+      {
+        $split = explode(':', $token, 2);
+        if( isset($split[1]) )
+        {
+          $customTokens[$split[0]] = $split[1];
+        }
+        else
+        {
+          throw new InvalidArgumentException(sprintf(
+            'Invalid token format for "%s"; "key:value" expected.',
+              $token
+          ));
+        }
+      }
+    }
+
+    /* Time to start doing things. */
+
     /* Set up the directory structure if necessary. */
     $fs = $this->getFilesystem();
     if( ! $fs->mkdirs(dirname($target), 0755) )
@@ -164,13 +192,20 @@ END;
     }
 
     /* Replace tokens. */
-    $fs->replaceTokens($target, '##', '##', array(
+    $tokens = array(
       'CLASSNAME'   => $ref->getName(),
       'PACKAGE'     => $this->_guessPackageName($ref),
       'SUBPACKAGE'  => $this->_guessSubpackageName($ref, 'test'),
 
       'TESTS'       => ($params['no-tests'] ? '' : $this->_generateTests($ref))
-    ));
+    );
+
+    if( ! empty($customTokens) )
+    {
+      $tokens = array_merge($tokens, $customTokens);
+    }
+
+    $fs->replaceTokens($target, '##', '##', $tokens);
   }
 
   /** Finds the source file for a given class.
