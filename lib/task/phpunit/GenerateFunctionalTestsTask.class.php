@@ -125,8 +125,8 @@ END;
     }
 
     /* Determine target file path. */
-    $path   = $this->_genPath(array($module, $action . '.php'), false);
-    $target = $this->_getBaseDir('test', array('functional', $app)) . $path;
+    $path   = $this->_genPath(array($app, $module, $action . '.php'), false);
+    $target = $this->_getBaseDir('test', array('functional')) . $path;
 
     if( $params['verbose'] )
     {
