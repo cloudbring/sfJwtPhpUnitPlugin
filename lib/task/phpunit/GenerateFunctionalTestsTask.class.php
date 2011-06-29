@@ -158,6 +158,17 @@ END;
     /* Time to start doing things. */
     $this->_copySkeletonFile($skeleton, $target);
 
+    $ref = new ReflectionObject($controller->getAction($module, $action));
+
     /* Replace tokens. */
+    $tokens = array(
+      'URL'         => sprintf('/%s/%s', $module, $action),
+      'ROUTENAME'   => sprintf('%s_%s_%s', $app, $module, $action),
+      'APPNAME'     => $app,
+      'PROJECTNAME' => $this->_guessPackageName($ref),
+      'SUBPACKAGE'  => $this->_guessSubpackageName($ref, 'test')
+    );
+
+    $this->getFilesystem()->replaceTokens($target, '##', '##', $tokens);
   }
 }

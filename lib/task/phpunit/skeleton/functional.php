@@ -7,6 +7,7 @@
 class ##ROUTENAME##Test extends Test_Case_Functional
 {
   protected
+    $_application = '##APPNAME##',
     $_url;
 
   protected function _setUp(  )
