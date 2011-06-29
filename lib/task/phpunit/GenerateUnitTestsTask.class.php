@@ -123,25 +123,7 @@ END;
     }
 
     /* Validate custom tokens. */
-    $customTokens = array();
-    if( $params['token'] )
-    {
-      foreach( (array) $params['token'] as $token )
-      {
-        $split = explode(':', $token, 2);
-        if( isset($split[1]) )
-        {
-          $customTokens[$split[0]] = $split[1];
-        }
-        else
-        {
-          throw new InvalidArgumentException(sprintf(
-            'Invalid token format for "%s"; "key:value" expected.',
-              $token
-          ));
-        }
-      }
-    }
+    $customTokens = $this->_parseCustomTokens((array) $params['token']);
 
     /* Time to start doing things. */
     $this->_copySkeletonFile($skeleton, $target);

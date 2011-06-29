@@ -42,6 +42,13 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
 
     $this->addOptions(array(
       new sfCommandOption(
+        'token',
+        null,
+        sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY,
+        'Specify custom token names/values in key:value format (e.g., "PACKAGE:MyAwesomeProject").'
+      ),
+
+      new sfCommandOption(
         'verbose',
         'v',
         sfCommandOption::PARAMETER_NONE,
@@ -238,5 +245,34 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
     }
 
     return $subpackage;
+  }
+
+  /** Parses and validates custom tokens for the skeleton test case.
+   *
+   * @param array $tokens
+   *
+   * @return array(string(token) => string)
+   */
+  protected function _parseCustomTokens( array $tokens )
+  {
+    $customTokens = array();
+
+    foreach( $tokens as $token )
+    {
+      $split = explode(':', $token, 2);
+      if( isset($split[1]) )
+      {
+        $customTokens[strtoupper($split[0])] = $split[1];
+      }
+      else
+      {
+        throw new InvalidArgumentException(sprintf(
+          'Invalid token format for "%s"; "key:value" expected.',
+            $token
+        ));
+      }
+    }
+
+    return $customTokens;
   }
 }

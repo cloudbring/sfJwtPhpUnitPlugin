@@ -67,7 +67,8 @@ END;
   public function execute( $args = array(), $opts = array() )
   {
     $params = $this->_consolidateInput($args, $opts, array(
-      'route'   => array(),
+      'route'   => null,
+      'token'   => array(),
       'verbose' => null
     ), true);
 
@@ -155,6 +156,9 @@ END;
       ));
     }
 
+    /* Validate custom tokens. */
+    $customTokens = $this->_parseCustomTokens((array) $params['token']);
+
     /* Time to start doing things. */
     $this->_copySkeletonFile($skeleton, $target);
 
@@ -168,6 +172,11 @@ END;
       'PROJECTNAME' => $this->_guessPackageName($ref),
       'SUBPACKAGE'  => $this->_guessSubpackageName($ref, 'test')
     );
+
+    if( ! empty($customTokens) )
+    {
+      $tokens = array_merge($tokens, $customTokens);
+    }
 
     $this->getFilesystem()->replaceTokens($target, '##', '##', $tokens);
   }
