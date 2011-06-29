@@ -55,13 +55,6 @@ END;
         null,
         sfCommandOption::PARAMETER_NONE,
         'If set, an empty test case will be generated (no skeleton tests).'
-      ),
-
-      new sfCommandOption(
-        'token',
-        null,
-        sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY,
-        'Specify custom token names/values in key:value format (e.g., "PACKAGE:MyAwesomeProject").'
       )
     ));
   }
