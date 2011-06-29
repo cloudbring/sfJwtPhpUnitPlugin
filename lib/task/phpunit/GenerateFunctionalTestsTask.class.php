@@ -66,11 +66,10 @@ END;
 
   public function execute( $args = array(), $opts = array() )
   {
-    $allowed = array(
-      'route'  => array()
-    );
-
-    $params = $this->_consolidateInput($args, $opts, $allowed, true);
+    $params = $this->_consolidateInput($args, $opts, array(
+      'route'   => array(),
+      'verbose' => null
+    ), true);
 
     $context    = sfContext::createInstance($this->configuration);
     $controller = $context->getController();
@@ -93,6 +92,15 @@ END;
       }
     }
 
+    if( $params['verbose'] )
+    {
+      $this->logSection('info', sprintf(
+        'Best match for route "%s":  %s',
+          $params['route'],
+          print_r($route, true)
+      ));
+    }
+
     if( empty($route[1]['module']) or empty($route[1]['action']) )
     {
       throw new DomainException(sprintf(
@@ -101,6 +109,7 @@ END;
       ));
     }
 
+    $app    = $this->configuration->getApplication();
     $module = $route[1]['module'];
     $action = $route[1]['action'];
 
@@ -109,17 +118,46 @@ END;
       throw new InvalidArgumentException(sprintf(
         '"%s" matches %s route /%s/%s, but no matching action found.',
           $params['route'],
-          $this->configuration->getApplication(),
+          $app,
           $module,
           $action
       ));
     }
 
     /* Determine target file path. */
-    /* Verify the file doesn't already exist. */
-    /* Check for skeleton at sf_data_dir/skeleton/phpunit/functional.php. */
-    /* Create file structure if necessary. */
-    /* Copy file. */
+    $path   = $this->_genPath(array($module, $action . '.php'), false);
+    $target = $this->_getBaseDir('test', array('functional', $app)) . $path;
+
+    if( $params['verbose'] )
+    {
+      $this->logSection('info', sprintf(
+        'Target test case file is %s.',
+          $target
+      ));
+    }
+
+    if( file_exists($target) )
+    {
+      throw new RuntimeException(sprintf(
+        'Test case file already exists at sf_test_dir/functional/%s.',
+          $path
+      ));
+    }
+
+    /* Locate the skeleton test case. */
+    $skeleton = $this->_findSkeletonFile('functional.php');
+
+    if( $params['verbose'] )
+    {
+      $this->logSection('info', sprintf(
+        'Using skeleton test case at %s.',
+          $skeleton
+      ));
+    }
+
+    /* Time to start doing things. */
+    $this->_copySkeletonFile($skeleton, $target);
+
     /* Replace tokens. */
   }
 }

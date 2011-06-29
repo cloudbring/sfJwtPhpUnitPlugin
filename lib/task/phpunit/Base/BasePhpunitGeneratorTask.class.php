@@ -36,6 +36,87 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
    */
   const DEFAULT_PACKAGE = 'symfony';
 
+  public function configure(  )
+  {
+    parent::configure();
+
+    $this->addOptions(array(
+      new sfCommandOption(
+        'verbose',
+        'v',
+        sfCommandOption::PARAMETER_NONE,
+        'If set, additional (mostly debugging) information will be output.'
+      )
+    ));
+  }
+
+  /** Copies askeleton file to the specified destination, creating intermediate
+   *    directories as needed.
+   *
+   * @param string(absfilepath) $skeleton
+   * @param string(absfilepath) $target
+   *
+   * @return void
+   * @throws RuntimeException if anything goes wrong.
+   */
+  protected function _copySkeletonFile( $skeleton, $target )
+  {
+    /* Set up the directory structure if necessary. */
+    $fs = $this->getFilesystem();
+    if( ! $fs->mkdirs(dirname($target), 0755) )
+    {
+      throw new RuntimeException(sprintf(
+        'Failed to create directory %s.',
+          $target
+      ));
+    }
+
+    /* Copy the skeleton file into place. */
+    $fs->copy($skeleton, $target);
+    if( ! is_file($target) )
+    {
+      throw new RuntimeException(sprintf(
+        'Failed to copy skeleton class file %s to %s.',
+          $skeleton,
+          $target
+      ));
+    }
+  }
+
+  /** Returns the location to a skeleton class file, checking for a user-defined
+   *    version before defaulting to the stock file included with the plugin.
+   *
+   * @param string(filename) $filename
+   *
+   * @return string(absfilepath)
+   * @throws RuntimeException if no skeleton file was located.
+   */
+  protected function _findSkeletonFile( $filename )
+  {
+    /* Check for custom skeleton file at
+     *  sf_data_dir/skeleton/phpunit/unit.php.
+     */
+    $skeleton = $this->_getBaseDir('data', array('skeleton', 'phpunit')) . $filename;
+    if( ! is_file($skeleton) )
+    {
+      $skeleton = $this->_genPath(array(
+        realpath($this->_genPath(array(dirname(__FILE__), '..'))),
+        'skeleton',
+        $filename
+      ), false);
+
+      if( ! is_file($skeleton) )
+      {
+        throw new RuntimeException(sprintf(
+          'Cannot find skeleton class file at %s.',
+            $skeleton
+        ));
+      }
+    }
+
+    return $skeleton;
+  }
+
   /** Returns a base directory, normalized (ensures that it ends with a
    *    directory separator).
    *

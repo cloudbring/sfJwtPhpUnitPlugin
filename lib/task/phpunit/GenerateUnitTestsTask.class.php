@@ -62,13 +62,6 @@ END;
         null,
         sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY,
         'Specify custom token names/values in key:value format (e.g., "PACKAGE:MyAwesomeProject").'
-      ),
-
-      new sfCommandOption(
-        'verbose',
-        'v',
-        sfCommandOption::PARAMETER_NONE,
-        'If set, additional (mostly debugging) information will be output.'
       )
     ));
   }
@@ -113,31 +106,13 @@ END;
     if( file_exists($target) )
     {
       throw new RuntimeException(sprintf(
-        'Test file already exists at sf_test_dir/unit/%s.',
+        'Test case file already exists at sf_test_dir/unit/%s.',
           $path
       ));
     }
 
-    /* Check for custom skeleton file at
-     *  sf_data_dir/skeleton/phpunit/unit.php.
-     */
-    $skeleton = $this->_getBaseDir('data', array('skeleton', 'phpunit')) . 'unit.php';
-    if( ! is_file($skeleton) )
-    {
-      $skeleton = $this->_genPath(array(
-        dirname(__FILE__),
-        'skeleton',
-        'unit.php'
-      ), false);
-
-      if( ! is_file($skeleton) )
-      {
-        throw new RuntimeException(sprintf(
-          'Cannot find skeleton class file at %s.',
-            $skeleton
-        ));
-      }
-    }
+    /* Locate the skeleton test case. */
+    $skeleton = $this->_findSkeletonFile('unit.php');
 
     if( $params['verbose'] )
     {
@@ -169,27 +144,7 @@ END;
     }
 
     /* Time to start doing things. */
-
-    /* Set up the directory structure if necessary. */
-    $fs = $this->getFilesystem();
-    if( ! $fs->mkdirs(dirname($target), 0755) )
-    {
-      throw new RuntimeException(sprintf(
-        'Failed to create directory %s.',
-          $target
-      ));
-    }
-
-    /* Copy the skeleton file into place. */
-    $fs->copy($skeleton, $target);
-    if( ! is_file($target) )
-    {
-      throw new RuntimeException(sprintf(
-        'Failed to copy skeleton class file %s to %s.',
-          $skeleton,
-          $target
-      ));
-    }
+    $this->_copySkeletonFile($skeleton, $target);
 
     /* Replace tokens. */
     $tokens = array(
@@ -205,7 +160,7 @@ END;
       $tokens = array_merge($tokens, $customTokens);
     }
 
-    $fs->replaceTokens($target, '##', '##', $tokens);
+    $this->getFilesystem()->replaceTokens($target, '##', '##', $tokens);
   }
 
   /** Finds the source file for a given class.
