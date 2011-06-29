@@ -30,9 +30,6 @@
  */
 class GenerateFunctionalTestsTask extends BasePhpunitGeneratorTask
 {
-  /** @todo Support for customized factories.yml (e.g., cannot rely on
-   *    sfPatternRouting).
-   */
   public function configure(  )
   {
     parent::configure();
@@ -72,8 +69,18 @@ END;
       'verbose' => null
     ), true);
 
-    $context    = sfContext::createInstance($this->configuration);
+    /* @var $context sfContext */
+    $context = sfContext::createInstance($this->configuration);
+
+    /* @var $controller sfFrontWebController */
     $controller = $context->getController();
+    if( ! $controller instanceof sfFrontWebController )
+    {
+      throw new DomainException(sprintf(
+        "I don't know how to parse URLs for the %s controller.",
+          get_class($controller)
+      ));
+    }
 
     $route = $controller->convertUrlStringToParameters($params['route']);
 
@@ -82,7 +89,7 @@ END;
      */
     if( ! empty($route[0]) )
     {
-      /** @kludge No getRoute() method? Really, sfPatternRouting? */
+      /** @kludge No getRoute() method? Really, sfRouting? */
       $routes = $context->getRouting()->getRoutes();
       if( isset($routes[$route[0]]) )
       {
