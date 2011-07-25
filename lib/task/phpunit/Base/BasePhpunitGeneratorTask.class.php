@@ -281,12 +281,12 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
 
       $authors = (
         empty($properties['symfony']['author'])
-          ? array('')
+          ? array()
           : array($properties['symfony']['author'])
       );
     }
 
-    return $multiple ? $authors : reset($authors);
+    return $multiple ? $authors : (string) reset($authors);
   }
 
   /** Parses all values for a particular tag in a docblock.
