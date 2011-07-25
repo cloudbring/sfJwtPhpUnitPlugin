@@ -569,7 +569,7 @@ class frontend_main_reportissueTest extends Test_Case_Functional
 * If a form is not added to the action's variable holder (e.g., by assigning it
   to `$this->form` in the action), it will not be accessible to JPUP.
 
-### Testing Emails ###
+#### Testing Emails ####
 To interact with Symfony's built in mailer, use the Mailer plugin:
 
 <pre>
@@ -630,7 +630,7 @@ class frontend_main_reportissueTest extends Test_Case_Functional
   If you are using your own mailer, you will need to write your own interface
   for interacting with it for testing.
 
-### Testing Redirects ###
+#### Testing Redirects ####
 The Request and Response plugins provide access to forwarding and redirecting
   information, respectively.
 
@@ -677,7 +677,7 @@ class frontend_contactus_reportissueTest extends Test_Case_Functional
 
   This only applies to redirects; forwards are followed automatically.
 
-### Troubleshooting 500 Errors ###
+#### Troubleshooting 500 Errors ####
 When applications generate 500 errors, Symfony will forward the request to a
   generic error page, which makes troubleshooting these problems in functional
   tests particularly frustrating.
