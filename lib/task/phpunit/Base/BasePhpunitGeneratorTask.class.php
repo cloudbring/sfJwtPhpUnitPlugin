@@ -243,11 +243,7 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
    */
   protected function _guessSubpackageName( ReflectionClass $ref, $prefix = '' )
   {
-    if( preg_match('/^\s*\*\s*@subpackage\s+(.+)\s*$/m', $ref->getDocComment(), $matches) )
-    {
-      $subpackage = $matches[1];
-    }
-    else
+    if( ! $subpackage = $this->_getTagValues('subpackage', $ref->getDocComment(), false) )
     {
       $subpackage = str_replace(DIRECTORY_SEPARATOR, '.',
         dirname(
@@ -295,12 +291,13 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
 
   /** Parses all values for a particular tag in a docblock.
    *
-   * @param string $tag
-   * @param string $docblock
+   * @param string  $tag
+   * @param string  $docblock
+   * @param bool    $multiple
    *
-   * @return array(string)
+   * @return array(string)|string
    */
-  protected function _getTagValues( $tag, $docblock )
+  protected function _getTagValues( $tag, $docblock, $multiple = true )
   {
     $regex = sprintf(
       '/^\s*\*\s*@%s\s+(.+)\s*$/m',
@@ -308,7 +305,7 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
     );
 
     preg_match_all($regex, $docblock, $matches);
-    return $matches[1];
+    return $multiple ? $matches[1] : reset($matches[1]);
   }
 
   /** Parses and validates custom tokens for the skeleton test case.
