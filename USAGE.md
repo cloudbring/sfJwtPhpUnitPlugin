@@ -31,9 +31,120 @@ For example, the unit tests for `lib/model/Profile.class.php` should be stored
   convention, you can leverage readline's autocomplete feature when you are
   running tests via PHPUnit Symfony tasks.
 
+### Generating Unit Tests Automatically ###
+JPUP comes packaged with a Symfony task named `phpunit:generate-unit` to build
+  unit tests for you automatically.
+
+To use `phpunit:generate-unit`, you must first create the class skeleton, as the
+  task will use Symfony's auto-loader to locate the class file.  You can also
+  generate unit tests for a class that you have already added methods to; the
+  task will create skeleton tests for you:
+
+<pre>
+# sf_lib_dir/HelloWorld.class.php
+
+&lt;?php
+/** My first PHP class!
+ *
+ * @package myproject
+ * @subpackage helloworld
+ */
+class HelloWorld
+{
+  /** Returns everyone's favorite phrase.
+   *
+   * @return string
+   */
+  public function getString(  )
+  {
+    return 'Hello, World!';
+  }
+
+  /** Returns a generic string representation of the object.
+   *
+   * @return string
+   */
+  public function __toString(  )
+  {
+    return $this->getString();
+  }
+}
+</pre>
+
+To build a skeleton test case for the `HelloWorld` class as defined in the above
+  example, execute the following command:
+
+<pre>
+./symfony phpunit:generate-unit HelloWorld
+</pre>
+
+Note that you must pass the **class name** to the task.  This is a requirement
+  to avoid ambiguity when a class file contains multiple class definitions.
+
+* JPUP does not support generating tests for multiple classes in the same file.
+    If you want test cases for multiple classes that are defined in the same
+    file, you will either need to create the test cases by hand or split out the
+    classes into separate files.
+
+`phpunit:generate-unit` will create a test case for you in `sf_test_dir/unit`,
+  and it will create subdirectories as needed so that the directory structure
+  matches the location of the class file.
+
+In the example above, the test case file will be created at
+  `sf_test_dir/unit/lib/HelloWorld.class.php` that looks something like this:
+
+<pre>
+# sf_test_dir/unit/lib/HelloWorld.class.php
+
+&lt;?php
+/** Unit tests for HelloWorld.
+ *
+ * @package myproject
+ * @subpackage test.helloworld
+ */
+class HelloWorldTest extends Test_Case_Unit
+{
+  protected function _setUp(  )
+  {
+  }
+
+  public function testGetString(  )
+  {
+    $this->markTestIncomplete('Not implemented yet.');
+  }
+}
+</pre>
+
+Note that JPUP automatically populates the `@package` and `@subpackage` phpdoc
+  tags from the class docblock, and it creates skeleton tests for any public,
+  non-magic methods it finds in the class.
+
+* If the class does not have a `@package` tag, JPUP will try to use the name of
+    the project as defined in `sf_config_dir/properties.ini`.
+
+* If the class does not have a `@subpackage` tag, JPUP will try to guess one
+    based on the class file's location in the project's directory structure.
+
+* The template for the skeleton test case is located in
+    `sf_root_dir/plugins/sfJwtPhpUnitPlugin/lib/task/phpunit/skeleton/unit.php`.
+
+    If desired, you can create your own template.  JPUP will first check for a
+      skeleton file at `sf_data_dir/skeleton/phpunit/unit.php`.
+
+* You may customize the values of any tokens, such as the package or subpackage
+    names (or any additional tokens in your custom skeleton file) by passing
+    `--token` arguments to the task.
+
+  For example, to change the `@package` of the test case to "MyAwesomeProject",
+    you would invoke the task like this:
+
+    <pre>
+./symfony phpunit:generate-unit --token='package:MyAwesomeProject' HelloWorld
+</pre>
+
 ## Functional Tests ##
-Functional tests should be stored under `sf_test_dir/functional`.  Use subdirectories
-  to group functional tests by application and module.
+Functional tests should be stored under `sf_test_dir/functional`.  Use
+  subdirectories to group functional tests by application and module.
 
 For example, the functional tests for `accountActions->executeRegister()` (e.g.,
   http://www.example.com/account/register) should be stored in
