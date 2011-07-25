@@ -160,6 +160,107 @@ Note that this differs from the way Symfony's built-in test framework organizes
   tests; we just found that it's more efficient for us to locate and run tests
   when they are organized by module and action rather than just by action.
 
+### Generating Functional Tests Automatically ###
+JPUP comes packaged with a Symfony task named `phpunit:generate-functional` to
+  build functional tests for you automatically.
+
+To use `phpunit:generate-functional`, you must first create the module and
+  action you wish to test and wire it into your application's `routing.yml`.
+
+Once that is done, invoke the task like this:
+
+<pre>
+./symfony phpunit:generate-functional &lt;route>
+</pre>
+
+Where `<route>` is either a route name (prefixed with '@') or a module/action
+  pair.
+
+For example, consider if your application's `routing.yml` looked like this:
+
+<pre>
+# sf_app_dir/config/routing.yml
+
+# default rules
+homepage:
+  url:   /
+  param: { module: default, action: index }
+
+# generic rules
+# please, remove them by adding more specific rules
+default_index:
+  url:   /:module
+  param: { action: index }
+
+default:
+  url:   /:module/:action/*
+</pre>
+
+You could generate a functional test case for `main/index` using either of the
+  following commands:
+
+<pre>
+./symfony phpunit:generate-functional @homepage
+./symfony phpunit:generate-functional main/index
+</pre>
+
+JPUP will generate a skeleton test case for you that looks something like this:
+
+<pre>
+# sf_test_dir/functional/frontend/main/index.php
+
+&lt;?php
+/** Functionl tests for /main/index.
+ *
+ * @package myproject
+ * @subpackage test.main
+ */
+class frontend_main_indexTest extends Test_Case_Functional
+{
+  protected
+    $_application = 'frontend',
+    $_url;
+
+  protected function _setUp(  )
+  {
+    $this->_url = '/main/index';
+  }
+
+  public function testSmokeCheck(  )
+  {
+    $this->_browser->get($this->_url);
+    $this->assertStatusCode(200);
+  }
+}
+</pre>
+
+Note that, just like `phpunit:generate-unit`, `phpunit:generate-functional`
+  automatically populates the `@package` and `@subpackage` phpdoc tags from the
+  class docblock.
+
+* If the action class does not have a `@package` tag, JPUP will try to use the
+    name of the project as defined in `sf_config_dir/properties.ini`.
+
+* If the action class does not have a `@subpackage` tag, JPUP will try to guess
+    one based on the module and action names.
+
+* The template for the skeleton test case is located in
+    `sf_root_dir/plugins/sfJwtPhpUnitPlugin/lib/task/phpunit/skeleton/functional.php`.
+
+    If desired, you can create your own template.  JPUP will first check for a
+      skeleton file at `sf_data_dir/skeleton/phpunit/functional.php`.
+
+* You may customize the values of any tokens, such as the package or subpackage
+    names (or any additional tokens in your custom skeleton file) by passing
+    `--token` arguments to the task.
+
+  For example, to change the `@package` of the test case to "MyAwesomeProject",
+    you would invoke the task like this:
+
+<pre>
+./symfony phpunit:generate-functional --token='package:MyAwesomeProject' main/index
+</pre>
+
 # Writing Tests #
 ## Writing Unit Tests ##
 Writing a unit test for JPUP is very similar to writing [test cases for
