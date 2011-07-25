@@ -31,6 +31,86 @@ For example, the unit tests for `lib/model/Profile.class.php` should be stored
   convention, you can leverage readline's autocomplete feature when you are
   running tests via PHPUnit Symfony tasks.
 
+## Functional Tests ##
+Functional tests should be stored under `sf_test_dir/functional`.  Use
+  subdirectories to group functional tests by application and module.
+
+For example, the functional tests for `accountActions->executeRegister()` (e.g.,
+  http://www.example.com/account/register) should be stored in
+  `sf_test_dir/functional/frontend/account/register.php`.
+
+Note that this differs from the way Symfony's built-in test framework organizes
+  functional tests; Symfony's module generator creates e.g.,
+  `sf_test_dir/functional/frontend/accountActionsTest.php`.
+
+* Just as with unit tests, JPUP does not actually care how you organize your
+  tests; we just found that it's more efficient for us to locate and run tests
+  when they are organized by module and action rather than just by action.
+
+# Writing Tests #
+## Writing Unit Tests ##
+Writing a unit test for JPUP is very similar to writing [test cases for
+  vanilla PHPUnit](http://www.phpunit.de/manual/current/en/writing-tests-for-phpunit.html),
+  but there are a few differences to keep in mind:
+
+- Have your test class extend `Test_Case_Unit`, **not**
+  `PHPUnit_Framework_TestCase`.
+
+- For setup and teardown functionality, define the `_setUp()` and `_tearDown()`
+  methods, respectively, in your test class (note the leading underscore in the
+  method names).
+
+Here is an example of what a unit test class looks like:
+
+<pre>
+# sf_test_dir/unit/lib/Widget/WidgetService.class.php
+
+&lt;?php
+class WidgetServiceTest extends Test_Case_Unit
+{
+  private
+    /** @var WidgetService_Http_Client_Mock */
+    $_client;
+
+  protected function _setUp(  )
+  {
+    /* Inject mock HTTP adapter so that we can simulate/control Widget
+     *  Service responses.
+     */
+    $this->_client = new WidgetService_Http_Client_Mock();
+    WidgetService::setHttpClient($this->_client);
+  }
+
+  public function testGetNumberOfLikes(  )
+  {
+    $like_count   = '25';
+    $object_type  = 'page';
+    $object_id    = '123';
+
+    /* Seed the response from the Widget server. */
+    $this->_client->seed(
+      sprintf(
+        '/likes/count?object_type=%s&object_id=%d',
+          $object_type,
+          $object_id
+      ),
+
+      json_encode(array(
+        'status'  => 'OK',
+        'likes'   => $like_count
+      ))
+    );
+
+    /* Execute the API method and check the result. */
+    $this->assertEquals(
+      $like_count,
+      WidgetService::getNumberOfLikes($object_type, $object_id),
+      'Expected correct number of likes returned.'
+    );
+  }
+}
+</pre>
+
 ### Generating Unit Tests Automatically ###
 JPUP comes packaged with a Symfony task named `phpunit:generate-unit` to build
   unit tests for you automatically.
@@ -144,21 +224,84 @@ Note that JPUP automatically populates the `@package` and `@subpackage` phpdoc
 ./symfony phpunit:generate-unit --token='package:MyAwesomeProject' HelloWorld
 </pre>
 
-## Functional Tests ##
-Functional tests should be stored under `sf_test_dir/functional`.  Use
-  subdirectories to group functional tests by application and module.
+## Writing Functional Tests ##
+Functional tests are very similar to unit tests as described above, but you also
+  have access to `$this->_browser` which is an instance of a modified version of
+  the `sfBrowser` class:  `Test_Browser`.
 
-For example, the functional tests for `accountActions->executeRegister()` (e.g.,
-  http://www.example.com/account/register) should be stored in
-  `sf_test_dir/functional/frontend/account/register.php`.
+Also, functional test classes should extend the `Test_Case_Functional` class
+  rather than `Test_Case_Unit`.
 
-Note that this differs from the way Symfony's built-in test framework organizes
-  functional tests; Symfony's module generator creates e.g.,
-  `sf_test_dir/functional/frontend/accountActionsTest.php`.
+Here is an example of a functional test class:
 
-* Just as with unit tests, JPUP does not actually care how you organize your
-  tests; we just found that it's more efficient for us to locate and run tests
-  when they are organized by module and action rather than just by action.
+<pre>
+# sf_test_dir/functional/frontend/account/register.php
+
+&lt;?php
+class frontend_account_registerTest extends Test_Case_Functional
+{
+  public function testSuccess(  )
+  {
+    /* Activate additional browser plugins. */
+    $this->_browser->usePlugin('form', 'mailer');
+
+    $username = 'mytester';
+    $password = 'password';
+    $email    = 'tester@jwt.com';
+
+    /* Send browser to the registration form page. */
+    $this->_browser->get('/account/register');
+    $this->assertStatusCode(200);
+
+    /* Simulate form submission. */
+    $this->_browser->click('Submit', array(
+      'username' => $username,
+      'password' => $password,
+      'email'    => $email
+    ));
+
+    /* Check assertions. */
+    $this->assertFalse(
+      $this->_browser->getForm()->hasErrors(),
+      'Expected form to have no errors.'
+    );
+
+    $this->assertNotNull(
+      Doctrine::getTable('Profile')->retrieveByUsername($username),
+      'Expected Profile record to be created successfully.'
+    );
+
+    $Mailer = $this->_browser->getMailer();
+    $this->assertEquals(
+      1,
+      $Mailer->countMessages(),
+      'Expected welcome email to be dispatched.'
+    );
+
+    $this->assertEquals(
+      $email,
+      $Mailer->getMessage(0)->getTo(),
+      'Expected welcome email to be sent to the user.'
+    );
+
+    $this->assertEquals(
+      'account/home',
+      $this->_browser->getResponse()->getRedirectUrl(),
+      'Expected browser to be redirected to account homepage.'
+    );
+
+    /* Follow the redirect. */
+    $this->_browser->followRedirect();
+    $this->assertStatusCode(200);
+
+    $this->assertEquals(
+      sprintf('Welcome, %s!', $username),
+      $this->_browser->getContent()->select('#welcome')->getValue(),
+      "Expected success page to display user's new username."
+    );
+  }
+}
+</pre>
 
 ### Generating Functional Tests Automatically ###
 JPUP comes packaged with a Symfony task named `phpunit:generate-functional` to
@@ -267,149 +410,6 @@ Note that, just like `phpunit:generate-unit`, `phpunit:generate-functional`
 
 <pre>
 ./symfony phpunit:generate-functional --token='package:MyAwesomeProject' main/index
-</pre>
-
-# Writing Tests #
-## Writing Unit Tests ##
-Writing a unit test for JPUP is very similar to writing [test cases for
-  vanilla PHPUnit](http://www.phpunit.de/manual/current/en/writing-tests-for-phpunit.html),
-  but there are a few differences to keep in mind:
-
-- Have your test class extend `Test_Case_Unit`, **not**
-  `PHPUnit_Framework_TestCase`.
-
-- For setup and teardown functionality, define the `_setUp()` and `_tearDown()`
-  methods, respectively, in your test class (note the leading underscore in the
-  method names).
-
-Here is an example of what a unit test class looks like:
-
-<pre>
-# sf_test_dir/unit/lib/Widget/WidgetService.class.php
-
-&lt;?php
-class WidgetServiceTest extends Test_Case_Unit
-{
-  private
-    /** @var WidgetService_Http_Client_Mock */
-    $_client;
-
-  protected function _setUp(  )
-  {
-    /* Inject mock HTTP adapter so that we can simulate/control Widget
-     *  Service responses.
-     */
-    $this->_client = new WidgetService_Http_Client_Mock();
-    WidgetService::setHttpClient($this->_client);
-  }
-
-  public function testGetNumberOfLikes(  )
-  {
-    $like_count   = '25';
-    $object_type  = 'page';
-    $object_id    = '123';
-
-    /* Seed the response from the Widget server. */
-    $this->_client->seed(
-      sprintf(
-        '/likes/count?object_type=%s&object_id=%d',
-          $object_type,
-          $object_id
-      ),
-
-      json_encode(array(
-        'status'  => 'OK',
-        'likes'   => $like_count
-      ))
-    );
-
-    /* Execute the API method and check the result. */
-    $this->assertEquals(
-      $like_count,
-      WidgetService::getNumberOfLikes($object_type, $object_id),
-      'Expected correct number of likes returned.'
-    );
-  }
-}
-</pre>
-
-## Writing Functional Tests ##
-Functional tests are very similar to unit tests as described above, but you also
-  have access to `$this->_browser` which is an instance of a modified version of
-  the `sfBrowser` class:  `Test_Browser`.
-
-Also, functional test classes should extend the `Test_Case_Functional` class
-  rather than `Test_Case_Unit`.
-
-Here is an example of a functional test class:
-
-<pre>
-# sf_test_dir/functional/frontend/account/register.php
-
-&lt;?php
-class frontend_account_registerTest extends Test_Case_Functional
-{
-  public function testSuccess(  )
-  {
-    /* Activate additional browser plugins. */
-    $this->_browser->usePlugin('form', 'mailer');
-
-    $username = 'mytester';
-    $password = 'password';
-    $email    = 'tester@jwt.com';
-
-    /* Send browser to the registration form page. */
-    $this->_browser->get('/account/register');
-    $this->assertStatusCode(200);
-
-    /* Simulate form submission. */
-    $this->_browser->click('Submit', array(
-      'username' => $username,
-      'password' => $password,
-      'email'    => $email
-    ));
-
-    /* Check assertions. */
-    $this->assertFalse(
-      $this->_browser->getForm()->hasErrors(),
-      'Expected form to have no errors.'
-    );
-
-    $this->assertNotNull(
-      Doctrine::getTable('Profile')->retrieveByUsername($username),
-      'Expected Profile record to be created successfully.'
-    );
-
-    $Mailer = $this->_browser->getMailer();
-    $this->assertEquals(
-      1,
-      $Mailer->countMessages(),
-      'Expected welcome email to be dispatched.'
-    );
-
-    $this->assertEquals(
-      $email,
-      $Mailer->getMessage(0)->getTo(),
-      'Expected welcome email to be sent to the user.'
-    );
-
-    $this->assertEquals(
-      'account/home',
-      $this->_browser->getResponse()->getRedirectUrl(),
-      'Expected browser to be redirected to account homepage.'
-    );
-
-    /* Follow the redirect. */
-    $this->_browser->followRedirect();
-    $this->assertStatusCode(200);
-
-    $this->assertEquals(
-      sprintf('Welcome, %s!', $username),
-      $this->_browser->getContent()->select('#welcome')->getValue(),
-      "Expected success page to display user's new username."
-    );
-  }
-}
 </pre>
 
 ### Interacting with the Symfony Application Context ###
