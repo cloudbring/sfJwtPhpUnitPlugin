@@ -21,43 +21,26 @@
  * THE SOFTWARE.
  */
 
-/** Runs all functional tests for a project.
+/** Runs all tests for a project.
  *
  * @author Phoenix Zerin <phoenix.zerin@jwt.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.task.phpunit
  */
-class FunctionalTestsTask extends BasePhpunitRunnerTask
+class RunAllTestsTask extends BasePhpunitRunnerTask
 {
   public function configure(  )
   {
     parent::configure();
 
-    $this->addArguments(array(
-      new sfCommandArgument(
-        'path',
-        sfCommandArgument::OPTIONAL | sfCommandArgument::IS_ARRAY,
-        'Specify the relative paths to specific test files and/or directories under sf_root_dir/test/functional.  If no arguments are provided, all functional tests will be run.',
-        null
-      )
-    ));
-
-    $this->name = 'functional';
-    $this->briefDescription = 'Runs all PHPUnit functional tests for the project.';
+    $this->name = 'all';
+    $this->briefDescription = 'Runs all PHPUnit tests for the project.';
 
     $this->detailedDescription = <<<END
-Runs PHPUnit functional tests for the project.
+Runs all PHPUnit tests for the project.
 END;
 
-    $this->_type = 'functional';
-  }
-
-  public function execute( $args = array(), $opts = array() )
-  {
-    $params       = $this->_consolidateInput($args, $opts);
-    $this->_paths = (array) $params['path'];
-
-    $this->_runTests($this->_validatePhpUnitInput($args, $opts));
+    $this->_type = '';
   }
 }

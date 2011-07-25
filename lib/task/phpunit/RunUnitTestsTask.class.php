@@ -21,26 +21,43 @@
  * THE SOFTWARE.
  */
 
-/** Runs all tests for a project.
+/** Runs all unit tests for a project.
  *
  * @author Phoenix Zerin <phoenix.zerin@jwt.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.task.phpunit
  */
-class AllTestsTask extends BasePhpunitRunnerTask
+class RunUnitTestsTask extends BasePhpunitRunnerTask
 {
   public function configure(  )
   {
     parent::configure();
 
-    $this->name = 'all';
-    $this->briefDescription = 'Runs all PHPUnit tests for the project.';
+    $this->addArguments(array(
+      new sfCommandArgument(
+        'path',
+        sfCommandArgument::OPTIONAL | sfCommandArgument::IS_ARRAY,
+        'Specify the relative paths to specific test files and/or directories under sf_root_dir/test/unit.  If no arguments are provided, all unit tests will be run.',
+        null
+      )
+    ));
+
+    $this->name = 'unit';
+    $this->briefDescription = 'Runs all PHPUnit unit tests for the project.';
 
     $this->detailedDescription = <<<END
-Runs all PHPUnit tests for the project.
+Runs PHPUnit unit tests for the project.
 END;
 
-    $this->_type = '';
+    $this->_type = 'unit';
+  }
+
+  public function execute( $args = array(), $opts = array() )
+  {
+    $params       = $this->_consolidateInput($args, $opts);
+    $this->_paths = (array) $params['path'];
+
+    $this->_runTests($this->_validatePhpUnitInput($args, $opts));
   }
 }
