@@ -281,7 +281,7 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
 
       $authors = (
         empty($properties['symfony']['author'])
-          ? array()
+          ? array('')
           : array($properties['symfony']['author'])
       );
     }
