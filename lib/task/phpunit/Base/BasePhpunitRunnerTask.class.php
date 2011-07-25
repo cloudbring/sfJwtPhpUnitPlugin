@@ -248,7 +248,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
   protected function _validatePhpUnitInput( array $args, array $opts )
   {
     $allowed = array(
-      'colors'      => true,
+      'color'       => false,
       'filter'      => null,
       'groups'      => null,
       'verbose'     => false
@@ -263,6 +263,10 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
         settype($val, gettype($allowed[$key]));
       }
     }
+
+    /* Special case:  Symfony's CLI uses "color", but PHPUnit uses "colors". */
+    $params['colors'] = $params['color'];
+    unset($params['color']);
 
     /* Special case:  groups has to be an array. */
     if( isset($params['groups']) )
