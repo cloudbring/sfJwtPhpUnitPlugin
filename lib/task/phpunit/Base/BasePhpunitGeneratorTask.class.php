@@ -218,9 +218,9 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
    */
   protected function _guessPackageName( ReflectionClass $ref )
   {
-    if( preg_match('/^\s*\*\s*@package\s+(.+)\s*$/m', $ref->getDocComment(), $matches) )
+    if( $package = $this->_getTagValues('package', $ref->getDocComment(), false) )
     {
-      return $matches[1];
+      return $package;
     }
     else
     {
