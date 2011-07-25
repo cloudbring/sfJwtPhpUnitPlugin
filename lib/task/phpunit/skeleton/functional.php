@@ -1,6 +1,8 @@
 <?php
 /** Functionl tests for ##URL##.
  *
+ * @author ##AUTHOR##
+ *
  * @package ##PROJECTNAME##
  * @subpackage ##SUBPACKAGE##
  */

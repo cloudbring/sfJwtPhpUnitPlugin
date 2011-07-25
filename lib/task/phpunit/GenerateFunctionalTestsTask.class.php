@@ -177,7 +177,8 @@ END;
       'ROUTENAME'   => sprintf('%s_%s_%s', $app, $module, $action),
       'APPNAME'     => $app,
       'PROJECTNAME' => $this->_guessPackageName($ref),
-      'SUBPACKAGE'  => $this->_guessSubpackageName($ref, 'test')
+      'SUBPACKAGE'  => $this->_guessSubpackageName($ref, 'test'),
+      'AUTHOR'      => $this->_guessAuthorNames($ref, false)
     );
 
     if( ! empty($customTokens) )
