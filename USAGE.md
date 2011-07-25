@@ -173,7 +173,7 @@ Once that is done, invoke the task like this:
 ./symfony phpunit:generate-functional &lt;route>
 </pre>
 
-Where `<route>` is either a route name (prefixed with '@') or a module/action
+Where `<route>` is either a route name (prefixed with `@`) or a module/action
   pair.
 
 For example, consider if your application's `routing.yml` looked like this:
@@ -202,6 +202,14 @@ You could generate a functional test case for `main/index` using either of the
 <pre>
 ./symfony phpunit:generate-functional @homepage
 ./symfony phpunit:generate-functional main/index
+</pre>
+
+* By default, JPUP will look at the routing for the "frontend" application.  If
+    you want to generate a functional test for a different application, you will
+    need to specify it using the `--application` parameter:
+
+<pre>
+./symfony phpunit:generate-functional --application=backend @activitylogs
 </pre>
 
 JPUP will generate a skeleton test case for you that looks something like this:
