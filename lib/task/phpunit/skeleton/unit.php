@@ -1,6 +1,8 @@
 <?php
 /** Unit tests for ##CLASSNAME##.
  *
+ * @author ##AUTHOR##
+ *
  * @package ##PACKAGE##
  * @subpackage ##SUBPACKAGE##
  */

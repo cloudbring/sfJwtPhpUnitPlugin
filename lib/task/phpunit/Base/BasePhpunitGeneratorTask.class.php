@@ -34,7 +34,12 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
    *
    * @var string
    */
-  const DEFAULT_PACKAGE = 'symfony';
+  const
+    DEFAULT_PACKAGE = 'symfony';
+
+  private
+    /** Caches the result of parsing sf_config_dir/properties.ini. */
+    $_projectProperties;
 
   public function configure(  )
   {
@@ -188,6 +193,23 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
     return is_dir($this->_getBaseDir('apps') . $app);
   }
 
+  /** Parses the contents of sf_config_dir/properties.ini.
+   *
+   * @return array
+   */
+  protected function _getProjectProperties(  )
+  {
+    if( ! isset($this->_projectProperties) )
+    {
+      $this->_projectProperties = parse_ini_file(
+        $this->_getBaseDir('config') . 'properties.ini',
+        true
+      );
+    }
+
+    return $this->_projectProperties;
+  }
+
   /** Determines the package name of a class.
    *
    * @param ReflectionClass $ref
@@ -202,10 +224,7 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
     }
     else
     {
-      $properties = parse_ini_file(
-        $this->_getBaseDir('config') . 'properties.ini',
-        true
-      );
+      $properties = $this->_getProjectProperties();
 
       return (
         empty($properties['symfony']['name'])
@@ -245,6 +264,51 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
     }
 
     return $subpackage;
+  }
+
+  /** Determines the author(s) of a class.
+   *
+   * If a class has no author tags in its docblock, the project author will be
+   *  returned instead.
+   *
+   * @param ReflectionClass $ref
+   * @param bool            $multiple
+   *
+   * @return array(string)|string if $multiple is false, only the first author
+   *  will be returned.
+   */
+  protected function _guessAuthorNames( ReflectionClass $ref, $multiple = true )
+  {
+    if( ! $authors = $this->_getTagValues('author', $ref->getDocComment()) )
+    {
+      $properties = $this->_getProjectProperties();
+
+      $authors = (
+        empty($properties['symfony']['author'])
+          ? array()
+          : array($properties['symfony']['author'])
+      );
+    }
+
+    return $multiple ? $authors : reset($authors);
+  }
+
+  /** Parses all values for a particular tag in a docblock.
+   *
+   * @param string $tag
+   * @param string $docblock
+   *
+   * @return array(string)
+   */
+  protected function _getTagValues( $tag, $docblock )
+  {
+    $regex = sprintf(
+      '/^\s*\*\s*@%s\s+(.+)\s*$/m',
+        preg_quote($tag, '/')
+    );
+
+    preg_match_all($regex, $docblock, $matches);
+    return $matches[1];
   }
 
   /** Parses and validates custom tokens for the skeleton test case.

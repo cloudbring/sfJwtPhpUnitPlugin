@@ -126,6 +126,7 @@ END;
       'CLASSNAME'   => $ref->getName(),
       'PACKAGE'     => $this->_guessPackageName($ref),
       'SUBPACKAGE'  => $this->_guessSubpackageName($ref, 'test'),
+      'AUTHOR'      => $this->_guessAuthorNames($ref, false),
 
       'TESTS'       => ($params['no-tests'] ? '' : $this->_generateTests($ref))
     );
