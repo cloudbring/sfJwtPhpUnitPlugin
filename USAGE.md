@@ -37,8 +37,10 @@ JPUP comes packaged with a Symfony task named `phpunit:generate-unit` to build
 
 To use `phpunit:generate-unit`, you must first create the class skeleton, as the
   task will use Symfony's auto-loader to locate the class file.  You can also
-  generate unit tests for a class that you have already added methods to; the
-  task will create skeleton tests for you:
+  generate unit tests for a class that you have already added methods to (the
+  task will create skeleton tests for you).
+
+For example, suppose you wanted to create a test case for this class:
 
 <pre>
 # sf_lib_dir/HelloWorld.class.php
@@ -138,7 +140,7 @@ Note that JPUP automatically populates the `@package` and `@subpackage` phpdoc
   For example, to change the `@package` of the test case to "MyAwesomeProject",
     you would invoke the task like this:
 
-    <pre>
+<pre>
 ./symfony phpunit:generate-unit --token='package:MyAwesomeProject' HelloWorld
 </pre>
 
