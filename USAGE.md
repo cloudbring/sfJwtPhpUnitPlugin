@@ -197,15 +197,18 @@ class HelloWorldTest extends Test_Case_Unit
 }
 </pre>
 
-Note that JPUP automatically populates the `@package` and `@subpackage` phpdoc
-  tags from the class docblock, and it creates skeleton tests for any public,
-  non-magic methods it finds in the class.
+Note that JPUP automatically populates the `@package`, `@subpackage` and
+  `@author` phpdoc tags from the class docblock, and it creates skeleton tests
+  for any public, non-magic methods it finds in the class.
 
 * If the class does not have a `@package` tag, JPUP will try to use the name of
     the project as defined in `sf_config_dir/properties.ini`.
 
 * If the class does not have a `@subpackage` tag, JPUP will try to guess one
     based on the class file's location in the project's directory structure.
+
+* If the class does not have an `@author` tag, JPUP will try to use the name of
+    the project author as defined in `sf_config_dir/properties.ini`.
 
 * The template for the skeleton test case is located in
     `sf_root_dir/plugins/sfJwtPhpUnitPlugin/lib/task/phpunit/skeleton/unit.php`.
@@ -386,14 +389,17 @@ class frontend_main_indexTest extends Test_Case_Functional
 </pre>
 
 Note that, just like `phpunit:generate-unit`, `phpunit:generate-functional`
-  automatically populates the `@package` and `@subpackage` phpdoc tags from the
-  class docblock.
+  automatically populates the `@package`, `@subpackage` and `@author` phpdoc
+  tags from the class docblock.
 
 * If the action class does not have a `@package` tag, JPUP will try to use the
     name of the project as defined in `sf_config_dir/properties.ini`.
 
 * If the action class does not have a `@subpackage` tag, JPUP will try to guess
     one based on the module and action names.
+
+* If the class does not have an `@author` tag, JPUP will try to use the name of
+    the project author as defined in `sf_config_dir/properties.ini`.
 
 * The template for the skeleton test case is located in
     `sf_root_dir/plugins/sfJwtPhpUnitPlugin/lib/task/phpunit/skeleton/functional.php`.
