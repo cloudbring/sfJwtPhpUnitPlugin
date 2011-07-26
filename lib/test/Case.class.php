@@ -329,6 +329,8 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
       $test = $config['test']['doctrine']['param']['dsn'];
 
+      $this->_assertDatabaseIsSupported($test);
+
       $prod =
         isset($config['prod']['doctrine']['param']['dsn'])
           ? $config['prod']['doctrine']['param']['dsn']
@@ -439,6 +441,36 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         (E_ALL | E_STRICT),
         'E_ALL | E_STRICT' // Split out for easy editing if necessary.
       );
+    }
+  }
+
+  /** Check to make sure that the database we're using is supported.
+   *
+   * @param string(dsn) $dsn
+   *
+   * @return void
+   */
+  private function _assertDatabaseIsSupported( $dsn )
+  {
+    if( preg_match('/^([^:]+):/', $dsn, $matches) )
+    {
+      /* List is hard-coded because expanding it would require code changes. */
+      $supported = array(
+        'mysql'
+      );
+
+      if( ! in_array(strtolower($matches[1]), $supported) )
+      {
+        self::_halt(sprintf(
+          '%s database driver in databases.yml is not (yet) supported; please specify one of: %s',
+            $matches[1],
+            implode(', ', $supported)
+        ));
+      }
+    }
+    else
+    {
+      self::_halt('Unable to determine the database driver in databases.yml.');
     }
   }
 
