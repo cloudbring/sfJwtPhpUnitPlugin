@@ -283,9 +283,10 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
    */
   protected function _executeGlobalBootstrap(  )
   {
-    /* sf_root_dir/plugins/sfJwtPhpUnitPlugin/test/bootstrap/phpunit.php */
+    /* sf_root_dir/plugins/sfJwtPhpUnitPlugin/lib/test/bootstrap/phpunit.php */
     $Harness = new Test_Harness_Safe(
         $this->_getBasedir()  . DIRECTORY_SEPARATOR
+      . 'lib'                 . DIRECTORY_SEPARATOR
       . 'test'                . DIRECTORY_SEPARATOR
       . 'bootstrap'           . DIRECTORY_SEPARATOR
       . 'phpunit.php'
