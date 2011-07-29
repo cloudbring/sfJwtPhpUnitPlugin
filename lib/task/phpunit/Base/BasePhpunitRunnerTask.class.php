@@ -83,7 +83,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
     {
       /* I.e., sf_root_dir/plugins/sfJwtPhpUnitPlugin(/lib/task/phpunit/Base) */
       $this->_basedir = realpath(
-          dirname(__FILE__)
+        dirname(__FILE__)
         . str_repeat(DIRECTORY_SEPARATOR . '..', 4)
       );
     }
@@ -120,7 +120,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
     if( $files = $this->_findTestFiles($this->_type, (array) $this->_paths) )
     {
       require_once
-          'PHPUnit' . DIRECTORY_SEPARATOR
+        'PHPUnit' . DIRECTORY_SEPARATOR
         . 'TextUI'  . DIRECTORY_SEPARATOR
         . 'TestRunner.php';
 
@@ -169,7 +169,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
     else
     {
       $base =
-          sfConfig::get('sf_root_dir')  . DIRECTORY_SEPARATOR
+        sfConfig::get('sf_root_dir')  . DIRECTORY_SEPARATOR
         . 'test'                        . DIRECTORY_SEPARATOR
         . $type                         . DIRECTORY_SEPARATOR;
 
@@ -203,8 +203,8 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
           $files = array_merge(
             $files,
             sfFinder::type('file')
-              ->name('*.php')
-              ->in($fullpath)
+            ->name('*.php')
+            ->in($fullpath)
           );
         }
 
@@ -214,7 +214,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
         else
         {
           $basename =
-              dirname($fullpath) . DIRECTORY_SEPARATOR
+            dirname($fullpath) . DIRECTORY_SEPARATOR
             . basename($fullpath, '.php');
 
           if( is_file($basename . '.php') )
@@ -287,7 +287,8 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
     $Harness = new Test_Harness_Safe(
         $this->_getBasedir()  . DIRECTORY_SEPARATOR
       . 'lib'                 . DIRECTORY_SEPARATOR
-      . 'test'                . DIRECTORY_SEPARATOR
+      . 'task'                . DIRECTORY_SEPARATOR
+      . 'phpunit'             . DIRECTORY_SEPARATOR
       . 'bootstrap'           . DIRECTORY_SEPARATOR
       . 'phpunit.php'
     );
