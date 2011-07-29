@@ -133,7 +133,7 @@ class Test_Browser extends Test_ObjectWrapper
     $this->getEncapsulatedObject()->call(
       $uri,
       $method,
-      $parameters,
+      $this->_stringifyParameters($parameters),
       $changeStack
     );
     $this->_isCalled = true;
@@ -170,5 +170,27 @@ class Test_Browser extends Test_ObjectWrapper
         __CLASS__,
         $meth
     ));
+  }
+
+  /** Converts parameters to strings before sending the request.
+   *
+   * @param array $params
+   *
+   * @return array(string|array)
+   */
+  protected function _stringifyParameters( array $params )
+  {
+    $stringified = array();
+
+    foreach( $params as $key => $val )
+    {
+      $stringified[$key] = (
+        is_array($val)
+          ? $this->_stringifyParameters($val)
+          : (string) $val
+      );
+    }
+
+    return $stringified;
   }
 }
