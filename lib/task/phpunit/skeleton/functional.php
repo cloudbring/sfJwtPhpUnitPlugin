@@ -1,5 +1,5 @@
 <?php
-/** Functionl tests for ##URL##.
+/** Functional tests for ##URL##.
  *
  * @author ##AUTHOR##
  *
