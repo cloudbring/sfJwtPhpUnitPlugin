@@ -44,8 +44,9 @@ Note that this differs from the way Symfony's built-in test framework organizes
   `sf_test_dir/functional/frontend/accountActionsTest.php`.
 
 * Just as with unit tests, JPUP does not actually care how you organize your
-  tests; we just found that it's more efficient for us to locate and run tests
-  when they are organized by module and action rather than just by action.
+  tests.  You can create a single functional test case for each module if you want;
+  we just found that it's more efficient for us to locate and run tests when they
+  are organized by module and action rather than just by action.
 
 # Writing Tests #
 ## Writing Unit Tests ##
