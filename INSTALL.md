@@ -7,7 +7,7 @@ To install the plugin into a Symfony project:
   `apps/*/config/settings.yml`.
 4. Add an `upload_dir` entry for the `test` environment in `settings.yml` for
   each application in your project.
-5. Set `error_reporting` for the `test` environment to `(E_ALL | E_STRICT)` in
+5. Change `error_reporting` for the `test` environment to `(E_ALL | E_STRICT)` in
   `settings.yml` for each application in your project.
 6. Add the following code to `ProjectConfiguration::setup()` in
   `config/ProjectConfiguration.class.php`:
