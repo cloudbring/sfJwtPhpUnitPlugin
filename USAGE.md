@@ -182,6 +182,8 @@ In the example above, the test case file will be created at
 &lt;?php
 /** Unit tests for HelloWorld.
  *
+ * @author PHX
+ *
  * @package myproject
  * @subpackage test.helloworld
  */
@@ -365,7 +367,9 @@ JPUP will generate a skeleton test case for you that looks something like this:
 # sf_test_dir/functional/frontend/main/index.php
 
 &lt;?php
-/** Functionl tests for /main/index.
+/** Functional tests for /main/index.
+ *
+ * @author PHX
  *
  * @package myproject
  * @subpackage test.main
