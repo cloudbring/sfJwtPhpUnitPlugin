@@ -268,6 +268,15 @@ abstract class Test_ObjectWrapper
     }
   }
 
+  /** Pass-through for string cast.
+   *
+   * @return string
+   */
+  public function __toString(  )
+  {
+    return (string) $this->getEncapsulatedObject();
+  }
+
   /** Pass-through for generic method handler.
    *
    * Note that injected dynamic methods are checked before checking the
