@@ -59,6 +59,14 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       ),
 
       new sfCommandOption(
+        'plugin',
+        'p',
+        sfCommandOption::PARAMETER_REQUIRED,
+        'Run tests for the specified plugin.',
+        null
+      ),
+
+      new sfCommandOption(
         'verbose',
         'v',
         sfCommandOption::PARAMETER_NONE,
@@ -117,7 +125,34 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
    */
   private function _doRunTests( array $options )
   {
-    if( $files = $this->_findTestFiles($this->_type, (array) $this->_paths) )
+    if( empty($options['plugin']) )
+    {
+      $basedir = null;
+    }
+    else
+    {
+      try
+      {
+        /* @var $config sfPluginConfiguration */
+        $config = $this->configuration
+          ->getPluginConfiguration($options['plugin']);
+      }
+      catch( InvalidArgumentException $e )
+      {
+        throw new sfException(sprintf(
+          'Plugin "%s" does not exist or is not enabled.',
+            $options['plugin']
+        ));
+      }
+
+      $basedir = implode(DIRECTORY_SEPARATOR, array(
+        $config->getRootDir(), 'test', ''
+      ));
+
+      unset($options['plugin']);
+    }
+
+    if( $files = $this->_findTestFiles($this->_type, (array) $this->_paths, $basedir) )
     {
       require_once
         'PHPUnit' . DIRECTORY_SEPARATOR
@@ -149,10 +184,11 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
    * @param string  $type ('unit', 'functional') If empty, all tests returned.
    * @param array   $paths Sub-paths within $type to search.  If empty, all
    *  tests under $type returned.
+   * @param string  $basedir Base directory all $paths are relative to.
    *
    * @return array(string)
    */
-  protected function _findTestFiles( $type = '', array $paths = array() )
+  protected function _findTestFiles( $type = '', array $paths = array(), $basedir = null )
   {
     if( ! $paths )
     {
@@ -162,21 +198,24 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
     if( $type == '' )
     {
       return array_merge(
-        $this->_findTestFiles('unit', $paths),
-        $this->_findTestFiles('functional', $paths)
+        $this->_findTestFiles('unit', $paths, $basedir),
+        $this->_findTestFiles('functional', $paths, $basedir)
       );
     }
     else
     {
-      $base =
-        sfConfig::get('sf_root_dir')  . DIRECTORY_SEPARATOR
-        . 'test'                        . DIRECTORY_SEPARATOR
-        . $type                         . DIRECTORY_SEPARATOR;
+      if( $basedir == '' )
+      {
+        $basedir =
+          sfConfig::get('sf_root_dir')  . DIRECTORY_SEPARATOR
+          . 'test'                        . DIRECTORY_SEPARATOR;
+      }
+      $basedir .= $type . DIRECTORY_SEPARATOR;
 
       $files = array();
       foreach( $paths as $path )
       {
-        $fullpath = $base . $path;
+        $fullpath = $basedir . $path;
 
         /* Don't allow path injection, just in case. */
         if( array_search('..', explode(DIRECTORY_SEPARATOR, $path)) !== false )
@@ -251,6 +290,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       'color'       => false,
       'filter'      => null,
       'groups'      => null,
+      'plugin'      => null,
       'verbose'     => false
     );
 
