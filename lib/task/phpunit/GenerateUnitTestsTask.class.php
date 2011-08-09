@@ -70,6 +70,56 @@ END;
 
     $path = $this->_findClassFile($params['class']);
 
+    /* _findClassFile() will throw an exception if it can't find the class, so
+     *  we can assume at this point that $path is valid.
+     */
+    if( $params['verbose'] )
+    {
+      $this->logSection('info', sprintf(
+        'Found class file at %s.',
+          $path
+      ));
+    }
+
+    /** Check to see if this is a plugin class. */
+    $exploded = explode(DIRECTORY_SEPARATOR, $path);
+    if( $exploded[0] == 'plugins' )
+    {
+      array_shift($exploded);
+      $name = array_shift($exploded);
+
+      /* @var $plugin sfPluginConfiguration */
+      try
+      {
+        $plugin = $this->configuration->getPluginConfiguration($name);
+      }
+      catch( InvalidArgumentException $e )
+      {
+        /* This is a really weird edge case:  the autoloader was able to find
+         *  the class inside the plugin dir, but the plugin hasn't been enabled.
+         *
+         * If we get to this point, something must be REALLY broken.
+         */
+        throw new sfException(sprintf(
+          'Plugin "%s" does not appear to be loaded.  This should never happen; please file a bug report for JPUP.'
+        ));
+      }
+
+      $path = implode(DIRECTORY_SEPARATOR, $exploded);
+    }
+    else
+    {
+      $plugin = null;
+    }
+
+    if( $params['verbose'] and $plugin )
+    {
+      $this->logSection('info', sprintf(
+        'Class belongs to plugin %s.',
+          $plugin->getName()
+      ));
+    }
+
     $ref = new ReflectionClass($params['class']);
     if( $ref->isAbstract() )
     {
@@ -79,8 +129,17 @@ END;
       ));
     }
 
-    $source = $this->_getBaseDir() . $path;
-    $target = $this->_getBaseDir('test', array('unit')) . $path;
+    $source =
+      $plugin
+        ? $this->_genPath(array($plugin->getRootDir()), true)
+        : $this->_getBaseDir();
+    $source .= $path;
+
+    $target =
+      $plugin
+        ? $this->_genPath(array($plugin->getRootDir(), 'test'), true)
+        : $this->_getBaseDir('test');
+    $target .= $this->_genPath(array('unit', $path), false);
 
     if( $params['verbose'] )
     {
