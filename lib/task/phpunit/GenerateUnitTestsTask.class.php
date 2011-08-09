@@ -164,7 +164,7 @@ END;
     }
 
     /* Locate the skeleton test case. */
-    $skeleton = $this->_findSkeletonFile('unit.php');
+    $skeleton = $this->_findSkeletonFile('unit.php', $plugin);
 
     if( $params['verbose'] )
     {

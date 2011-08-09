@@ -98,19 +98,41 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
   /** Returns the location to a skeleton class file, checking for a user-defined
    *    version before defaulting to the stock file included with the plugin.
    *
-   * @param string(filename) $filename
+   * @param string(filename)      $filename
+   * @param sfPluginConfiguration $plugin
    *
    * @return string(absfilepath)
    * @throws RuntimeException if no skeleton file was located.
    */
-  protected function _findSkeletonFile( $filename )
+  protected function _findSkeletonFile(
+    $filename,
+    sfPluginConfiguration $plugin = null
+  )
   {
     /* Check for custom skeleton file at
-     *  sf_data_dir/skeleton/phpunit/unit.php.
+     *  sf_data_dir/skeleton/phpunit/$filename.
      */
     $skeleton = $this->_getBaseDir('data', array('skeleton', 'phpunit')) . $filename;
     if( ! is_file($skeleton) )
     {
+      /* Check for plugin-specific skeleton file at
+       *  sf_plugin_dir/plugin-name/data/skeleton/phpunit/$filename.
+       */
+      if( $plugin )
+      {
+        $skeleton = $this->_genPath(array(
+          $plugin->getRootDir(), 'data', 'skeleton', 'phpunit', $filename
+        ), false);
+
+        if( is_file($skeleton) )
+        {
+          return $skeleton;
+        }
+      }
+
+      /* Check for default skeleton file at
+       *  sf_plugin_dir/sfJwtPhpUnitPlugin/lib/task/phpunit/skeleton/$filename.
+       */
       $skeleton = $this->_genPath(array(
         realpath($this->_genPath(array(dirname(__FILE__), '..'))),
         'skeleton',
