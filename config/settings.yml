@@ -1,0 +1,3 @@
+test:
+  .settings:
+    fixture_dir:  %SF_TEST_DIR%/fixtures
