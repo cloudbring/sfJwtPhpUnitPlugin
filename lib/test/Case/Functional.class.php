@@ -34,9 +34,6 @@
  */
 abstract class Test_Case_Functional extends Test_Case
 {
-  const
-    MSG_STATUSCODE = 'Browser returned HTTP status %d.';
-
   protected
     $_browser;
 
@@ -52,21 +49,16 @@ abstract class Test_Case_Functional extends Test_Case
   /** Shortcut for assertEqual($this->_browser->getStatusCode(), $code).
    *
    * @param int    $code
-   * @param string $msg Custom failure message (optional).
+   * @param string $message   Custom failure message (optional).
    *
    * @return void
    */
-  protected function assertStatusCode( $code, $msg = null )
+  protected function assertStatusCode( $code, $message = '' )
   {
-    if( $msg === null )
-    {
-      $msg = sprintf(self::MSG_STATUSCODE, $code);
-    }
-
-    $this->assertEquals(
-      $code,
-      $this->_browser->getResponse()->getStatusCode(),
-      $msg
+    self::assertThat(
+      $this->_browser,
+      new Test_Constraint_StatusCodeEquals($code),
+      $message
     );
   }
 }
