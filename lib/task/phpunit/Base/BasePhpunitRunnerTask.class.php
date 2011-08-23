@@ -314,6 +314,12 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       $params['groups'] = preg_split('/\s*,\s*/', (string) $params['groups']);
     }
 
+    /* Special case:  filter should not be empty. */
+    if( $params['filter'] === '' )
+    {
+      $params['filter'] = null;
+    }
+
     return $params;
   }
 
