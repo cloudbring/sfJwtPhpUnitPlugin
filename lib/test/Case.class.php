@@ -157,9 +157,9 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $this->getAppConfig();
     if( sfConfig::get('sf_use_database') )
     {
-      $this->verifyTestDbConnection();
+      $this->verifyTestDatabaseConnection();
 
-      $db = $this->getDbConnection();
+      $db = $this->getDatabaseConnection();
 
       /* The first time we run a test case, drop and rebuild the database.
        *
@@ -167,7 +167,13 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
        */
       if( empty(self::$_dbRebuilt) or $rebuild )
       {
-        $db->dropDatabase();
+        /* Don't try to drop the database unless it exists. */
+        $name = $this->getDatabaseName();
+        if( $name and $db->import->databaseExists($name) )
+        {
+          $db->dropDatabase();
+        }
+
         $db->createDatabase();
 
         Doctrine_Core::loadModels(
@@ -308,7 +314,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    *
    * @return Doctrine_Connection
    */
-  protected function getDbConnection(  )
+  protected function getDatabaseConnection(  )
   {
     try
     {
@@ -321,6 +327,27 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     }
   }
 
+  /** Returns the name of the Doctrine database.
+   *
+   * @return string(dbname)
+   */
+  protected function getDatabaseName(  )
+  {
+    $db = $this->getDatabaseConnection();
+
+    /* Why oh why does Doctrine_Connection not do this for us? */
+    if( ! $dsn = $db->getOption('dsn') )
+    {
+      throw new RuntimeException(sprintf(
+        'Doctrine connection "%s" does not have a DSN!',
+          $db->getName()
+      ));
+    }
+
+    $info = $db->getManager()->parsePdoDsn($dsn);
+    return (isset($info['dbname']) ? $info['dbname'] : null);
+  }
+
   /** Verifies that we are not connected to the production database.
    *
    * @param bool $force
@@ -328,7 +355,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    * @return void Triggers an error if our database connection is unsafe for
    *  testing.
    */
-  protected function verifyTestDbConnection( $force = false )
+  protected function verifyTestDatabaseConnection( $force = false )
   {
     if( ! self::$_dbNameCheck or $force )
     {
@@ -346,8 +373,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
       $test = $config['test']['doctrine']['param']['dsn'];
 
-      $this->_assertDatabaseIsSupported($test);
-
       $prod =
         isset($config['prod']['doctrine']['param']['dsn'])
           ? $config['prod']['doctrine']['param']['dsn']
@@ -360,7 +385,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       }
 
       /* Check to see that the active connection is using the correct DSN. */
-      if( $this->getDbConnection()->getOption('dsn') != $test )
+      if( $this->getDatabaseConnection()->getOption('dsn') != $test )
       {
         self::_halt('Doctrine connection is not using test DSN!');
       }
@@ -458,36 +483,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         (E_ALL | E_STRICT),
         'E_ALL | E_STRICT' // Split out for easy editing if necessary.
       );
-    }
-  }
-
-  /** Check to make sure that the database we're using is supported.
-   *
-   * @param string(dsn) $dsn
-   *
-   * @return void
-   */
-  private function _assertDatabaseIsSupported( $dsn )
-  {
-    if( preg_match('/^([^:]+):/', $dsn, $matches) )
-    {
-      /* List is hard-coded because expanding it would require code changes. */
-      $supported = array(
-        'mysql'
-      );
-
-      if( ! in_array(strtolower($matches[1]), $supported) )
-      {
-        self::_halt(sprintf(
-          '%s database driver in databases.yml is not (yet) supported; please specify one of: %s',
-            $matches[1],
-            implode(', ', $supported)
-        ));
-      }
-    }
-    else
-    {
-      self::_halt('Unable to determine the database driver in databases.yml.');
     }
   }
 
