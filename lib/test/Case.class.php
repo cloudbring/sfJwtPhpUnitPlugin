@@ -44,6 +44,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $_appConfigs = array(),
     $_dbRebuilt,
     $_dbNameCheck,
+    $_dbFlushTree,
     $_uploadsDirCheck,
     $_defaultApplication,
     $_configs;
@@ -179,14 +180,30 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       }
       else
       {
-        $db->execute('SET foreign_key_checks = 0');
-
-        foreach( Doctrine_Core::getLoadedModels() as $table )
+        /* Determine the order we need to load models. */
+        if( ! isset(self::$_dbFlushTree) )
         {
-          Doctrine_Query::create()->delete($table)->execute();
+          $models = $db->unitOfWork->buildFlushTree(
+            Doctrine_Core::getLoadedModels()
+          );
+          self::$_dbFlushTree = array_reverse($models);
         }
 
-        $db->execute('SET foreign_key_checks = 1');
+        /* Delete records, paying special attention to SoftDelete. */
+        foreach( self::$_dbFlushTree as $model )
+        {
+          $table = Doctrine_Core::getTable($model);
+
+          if( $table->hasTemplate('SoftDelete') )
+          {
+            foreach( $table->createQuery()->execute() as $record )
+            {
+              $record->hardDelete();
+            }
+          }
+
+          $table->createQuery()->delete()->execute();
+        }
       }
 
       $this->_fixtureLoader
