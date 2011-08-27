@@ -736,7 +736,7 @@ class frontend_main_reportissueTest extends Test_Case_Functional
   as part of a test or assertion.
 
 # Database Interaction #
-Note that JPUP is currently only compatible with Doctrine/MySQL.
+Note that JPUP is currently only compatible with Doctrine.
 
 ## Configuration ##
 Before running any tests, JPUP first verifies to make sure that a distinct
@@ -764,8 +764,8 @@ test:
 
 Replace the values in brackets above with ones that correspond to your database setup.
 
-* Make sure that you also create the test database in MySQL and assign user
-  privileges if necessary.
+* Make sure that you also create the test database and assign user privileges if
+    necessary.
 
 * If your application does not use a database, you can disable these checks
   (and all database connectivity) by setting `use_database` to `false` in
@@ -811,7 +811,7 @@ Once the data has been flushed, JPUP loads global test data fixtures, if any
 Note that JPUP flushes the database **before** each test, not **after** it.
   This is by design; if you want to inspect the state of the database after a
   failed test, use `exit()` to halt test execution before the failing assertion,
-  then use your favorite MySQL client to examine the test database.
+  then use your favorite DB client application to examine the test database.
 
 ## Loading Fixtures ##
 For efficiency, only global test fixtures are loaded by default (more on this
