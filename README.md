@@ -25,16 +25,9 @@ The most critical problems we set out to solve with JPUP are:
 - Using Symfony tasks to run multiple tests in one go.
 
 ## Compatibility ##
-JPUP was developed specifically for projects using Symfony 1.4/Doctrine/MySQL.
+JPUP was developed specifically for projects using Symfony 1.4 and Doctrine.
 
-Database fixtures are designed exclusively for Doctrine, and there's a teeny
-  bit of MySQL-specific querying done to speed up the database reset process
-  between tests.
-
-One of the goals we hope to achieve by releasing this plugin to the community is
-  to ascertain whether there is a need to support additional
-  ORMs/databases/features.  Your feedback, suggestions and pull requests are
-  always welcome!
+Propel is not currently supported.
 
 ## Installation ##
 See INSTALL.md.
