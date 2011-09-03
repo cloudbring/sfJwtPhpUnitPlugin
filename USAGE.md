@@ -423,6 +423,53 @@ Note that, just like `phpunit:generate-unit`, `phpunit:generate-functional`
 ./symfony phpunit:generate-functional --token='package:MyAwesomeProject' main/index
 </pre>
 
+### Signing In ###
+Testing applications that require login is a tricky proposition.  It's easy
+  enough to sign a user in, but every time the browser makes a request, it
+  destroys and rebuilds the application context, which logs the user back out!
+
+`Test_Browser` provides a `signin()` method to solve this problem.  Simply pass
+  in a username or email address, and the browser will make sure the user is
+  logged in during the next and subsequent requests:
+
+<pre>
+# sf_test_dir/functional/frontend/admin/dashboard.php
+
+&lt;?php
+class frontend_admin_dashboardTest extends Test_Case_Functional
+{
+  protected
+    $_url = '/admin/dashboard';
+
+  public function testMustBeLoggedIn(  )
+  {
+    $this->_browser->get($this->_url);
+    $this->assertStatusCode(401);
+  }
+
+  public function testUserCanAccessIfSignedIn(  )
+  {
+    $this->loadFixture('admin_user.php');
+    $this->_browser->signin('administrator');
+
+    $this->_browser->get($this->_url);
+    $this->assertStatusCode(200);
+  }
+
+  public function testSigninOnlyLastsForTheDurationOfTheTest(  )
+  {
+    $this->_browser->get($this->_url);
+    $this->assertStatusCode(401);
+  }
+}
+</pre>
+
+Note from the last test in the example above that the user will only remain
+  signed in for the duration of the test in which the call to `signin()` was
+  made.  If you want the user to be logged in during another test, you will need
+  to call `signin()` again, or move that code into your test case's `_setUp()`
+  method.
+
 ### Interacting with the Symfony Application Context ###
 While building JPUP, we found that there were a number of features that
   the `sfTestFunctional` classes afforded that are extraordinarily useful for
