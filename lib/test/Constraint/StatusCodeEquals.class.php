@@ -85,15 +85,10 @@ class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
 
     $message = parent::failureDescription($code, $message, $not);
 
-    switch( $code )
+    /* See if there's an error we can report. */
+    if( ! $error = (string) $browser->getError() )
     {
-      case 500:
-        $error = (string) $browser->getError();
-      break;
-
-      default:
-        $error = Zend_Http_Response::responseCodeAsText($code);
-      break;
+      $error = Zend_Http_Response::responseCodeAsText($code);
     }
 
     if( $error != '' )
