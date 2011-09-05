@@ -41,7 +41,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     DEFAULT_ENVIRONMENT = 'test';
 
   static private
-    $_appConfigs = array(),
     $_dbRebuilt,
     $_dbNameCheck,
     $_dbFlushTree,
@@ -96,6 +95,8 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   final public function setUp(  )
   {
+    $this->_initContext();
+
     $this->_fixtureLoader = new Test_FixtureLoader();
 
     $this->flushDatabase();
@@ -154,7 +155,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   protected function flushDatabase( $rebuild = false )
   {
-    $this->getAppConfig();
     if( sfConfig::get('sf_use_database') )
     {
       $this->verifyTestDatabaseConnection();
@@ -259,55 +259,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     }
 
     return $this;
-  }
-
-  /** Accessor for $_appConfigs.
-   *
-   * @return sfApplicationConfiguration
-   */
-  protected function getAppConfig(  )
-  {
-    if( empty($this->_application) )
-    {
-      $this->_application = self::getDefaultApplicationName();
-    }
-
-    if( ! isset(self::$_appConfigs[$this->_application]) )
-    {
-      if( sfContext::hasInstance($this->_application) )
-      {
-        self::$_appConfigs[$this->_application] =
-          sfContext::getInstance($this->_application)
-            ->getConfiguration();
-      }
-      else
-      {
-        $projectDir = sfConfig::get('sf_root_dir');
-        if( $projectDir == '' )
-        {
-          /* 1 %SF_ROOT_DIR%
-           * 2   plugins/
-           * 3     sfJwtPhpUnitPlugin/
-           * 4       lib/
-           * *         test/
-           *
-           * * = dirname(__FILE__)
-           */
-          $projectDir = realpath(dirname(__FILE__) . '/../../../..');
-        }
-
-        self::$_appConfigs[$this->_application] =
-          ProjectConfiguration::getApplicationConfiguration(
-            $this->_application,
-            self::DEFAULT_ENVIRONMENT,
-            true,
-            $projectDir
-          );
-        sfContext::createInstance(self::$_appConfigs[$this->_application]);
-      }
-    }
-
-    return self::$_appConfigs[$this->_application];
   }
 
   /** Gets the Doctrine connection, initializing it if necessary.
@@ -462,6 +413,31 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     }
   }
 
+  /** Initialize the application context.
+   *
+   * @return void
+   */
+  private function _initContext(  )
+  {
+    if( empty($this->_application) )
+    {
+      $this->_application = self::getDefaultApplicationName();
+    }
+
+    if( ! sfContext::hasInstance() )
+    {
+      sfContext::createInstance(
+        ProjectConfiguration::getApplicationConfiguration(
+          $this->_application,
+          'test',
+          true
+        )
+      );
+    }
+
+    sfContext::switchTo($this->_application);
+  }
+
   /** Check to make sure we are using the "test" environment.
    *
    * Throws an error if the check fails to avoid executing test code in a
@@ -471,10 +447,12 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   private function _assertTestEnvironment(  )
   {
-    $this->getAppConfig();
     if( sfConfig::get('sf_environment') != 'test' )
     {
-      self::_halt('Please verify that getAppConfig() is specifying the "test" environment.');
+      self::_halt(sprintf(
+        'JPUP is trying to run in the %s environment instead of test!',
+          sfConfig::get('sf_environment')
+      ));
     }
 
     if( sfConfig::get('sf_error_reporting') !== (E_ALL | E_STRICT) )
