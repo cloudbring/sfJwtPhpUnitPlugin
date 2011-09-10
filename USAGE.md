@@ -838,13 +838,13 @@ class frontend_main_reportissueTest extends Test_Case_Functional
 }
 </pre>
 
-* Note that the logger will be injected after the context loads its factories,
-    so there will not be any log messages from factory initialization (such as
-    connecting routes).
+Note that the logger will be injected after the context loads its factories,
+  so there will not be any log messages from factory initialization (such as
+  connecting routes).
 
-  You can work around this by instructing Symfony to load an `sfVarLogger` in
-    your `factories.yml` file.  The Logger plugin will first check to see if an
-    `sfVarLogger` has been added to the context before injecting its own.
+You can work around this by instructing Symfony to load an `sfVarLogger` in
+  your `factories.yml` file.  The Logger plugin will first check to see if an
+  `sfVarLogger` has been added to the context before injecting its own.
 
 <pre>
 # sf_apps_dir/frontend/config/factories.yml:
