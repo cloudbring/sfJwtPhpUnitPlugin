@@ -84,6 +84,22 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
     return $this->_browser;
   }
 
+  /** Adds an event listener to the browser object.
+   *
+   * @param Test_Browser_Listener $listener
+   *
+   * @return Test_Browser_Plugin($this)
+   */
+  public function addListener( Test_Browser_Listener $listener )
+  {
+    foreach( $listener->getEventNames() as $event )
+    {
+      $this->getBrowser()->addListener($event, array($listener, 'invoke'));
+    }
+
+    return $this;
+  }
+
   /** Given a plugin name, attempts to determine the correct corresponding
    *   classname.
    *

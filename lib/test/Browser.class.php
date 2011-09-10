@@ -122,12 +122,7 @@ class Test_Browser extends Test_ObjectWrapper
       ));
     }
 
-    $listener = new Test_Browser_Listener_Signin($user);
-    foreach( $listener->getEventNames() as $event )
-    {
-      $this->addListener($event, array($listener, 'invoke'));
-    }
-
+    $this->addListener(new Test_Browser_Listener_Signin($user));
     return $this;
   }
 
@@ -198,6 +193,25 @@ class Test_Browser extends Test_ObjectWrapper
   public function isCalled(  )
   {
     return $this->_isCalled;
+  }
+
+  /** Adds an event listener to the browser object.
+   *
+   * @param Test_Browser_Listener $listener
+   *
+   * @return Test_Browser($this)
+   */
+  public function addListener( Test_Browser_Listener $listener )
+  {
+    foreach( $listener->getEventNames() as $event )
+    {
+      $this->getEncapsulatedObject()->addListener(
+        $event,
+        array($listener, 'invoke')
+      );
+    }
+
+    return $this;
   }
 
   /** Handles an attempt to call a non-existent method.
