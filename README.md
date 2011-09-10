@@ -1,5 +1,5 @@
-# sfJwtPhpUnitPlugin #
-## About ##
+# sfJwtPhpUnitPlugin
+## About
 sfJwtPhpUnitPlugin ("JPUP") was developed at [JWT](http://jwt.com) to assist in
   the development of several Symfony 1.4 projects.
 
@@ -12,7 +12,7 @@ JPUP boasts robust database handling (modeled loosely after
 We found this plugin to be exceptionally useful for testing database-driven
   Symfony applications, and we wanted to share it with the Symfony community.
 
-## ANOTHER PHPUnit Plugin for Symfony? ##
+## ANOTHER PHPUnit Plugin for Symfony?
 Before embarking upon development for JPUP, we took a look around, and while we
   did discover a number of existing solutions that worked fantastically, we
   found that none of them quite met our needs.
@@ -24,18 +24,18 @@ The most critical problems we set out to solve with JPUP are:
 - A port of `sfBrowser` that has `sfTestFunctional`'s API but doesn't use Lime.
 - Using Symfony tasks to run multiple tests in one go.
 
-## Compatibility ##
+## Compatibility
 JPUP was developed specifically for projects using Symfony 1.4 and Doctrine.
 
 Propel is not currently supported.
 
-## Installation ##
+## Installation
 See INSTALL.md.
 
-## Usage ##
+## Usage
 See USAGE.md.
 
-## Contributing ##
+## Contributing
 We welcome any and all suggestions, requests, (constructive) criticism, code,
   fixes, forks, success stories... in short, if you think it would improve the
   quality of JPUP (or at least make us feel good about it), we'd love to see it.
