@@ -21,9 +21,9 @@
  * THE SOFTWARE.
  */
 
-/** Emulates multiple inheritence by wrapping an instance of an object.
+/** Emulates multiple inheritance by wrapping an instance of an object.
  *
- * It's not true multiple inheritence, as the wrapper does not have access to
+ * It's not true multiple inheritance, as the wrapper does not have access to
  *  protected properties/methods of the wrapped instance; the wrapper can only
  *  add or overwrite functionality.
  *
