@@ -48,6 +48,65 @@ JPUP boasts robust database handling, unlimited extensibility over Symfony's
       </package>
     </required>
   </dependencies>
-  <phprelease></phprelease>
-  <changelog></changelog>
+  <phprelease />
+  <changelog>
+  <release>
+   <version>
+    <release>1.0.7</release>
+    <api>1.0.4</api>
+   </version>
+   <notes>
+- Resolved [#19]: Need a changelog.
+- Resolved [#6]: Remove MySQL dependency.
+- [#3]: Added `--plugin` option to runner tasks (generators still outstanding).
+- Added `Test_Browser-&gt;signin()`.
+- Empty `--filter` value no longer breaks PHPUnit.
+- Added error/status code to `assertStatusCode()` failure message.
+- Added `sf_fixture_dir` `sfConfig` value (needs documentation).
+- Added `__toString()` handler to `Test_ObjectWrapper`.
+- Convert parameters to strings before sending them to `sfBrowser-&gt;call()`.
+- Fixed typos in skeleton test case files.
+- Minor documentation updates.
+   </notes>
+   <date>2011-07-29</date>
+   <time>14:44:36</time>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/blob/1.0.4/LICENSE">MIT license</license>
+  </release>
+  <release>
+   <version>
+    <release>1.0.6</release>
+    <api>1.0.3</api>
+   </version>
+   <notes>
+Changed baseinstalldir for root directory in package.xml..
+   </notes>
+   <date>2011-05-17</date>
+   <time>16:07::00</time>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/blob/1.0.3/LICENSE">MIT license</license>
+  </release>
+  <release>
+   <version>
+    <release>1.0.3</release>
+    <api>1.0.0</api>
+   </version>
+   <notes>
+Official Symfony plugin stable release.
+   </notes>
+   <date>2011-05-17</date>
+   <time>00:00:00</time>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/blob/1.0.0/LICENSE">MIT license</license>
+  </release>
+ </changelog>
 </package>
