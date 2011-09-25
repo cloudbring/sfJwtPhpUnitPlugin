@@ -75,6 +75,12 @@ class Test_Browser_Listener_Signin
       }
 
       $user->signIn($this->_user);
+
+      $event->getSubject()->getEventDispatcher()->notify(new sfEvent(
+        $this,
+        'application.log',
+        array(sprintf('User is logged in as "%s".', $user->getUsername()))
+      ));
     }
     else
     {
