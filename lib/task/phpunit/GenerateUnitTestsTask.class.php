@@ -200,9 +200,18 @@ END;
 
     $str = '';
 
+		/* Only consider public methods to be part of the class' API. */
+		$methods = $ref->getMethods(ReflectionMethod::IS_PUBLIC);
+
     /* @var $meth ReflectionMethod */
-    foreach( $ref->getMethods(ReflectionMethod::IS_PUBLIC) as $meth )
+    foreach( $methods as $meth )
     {
+			/* Do not count inherited methods as part of the class' API. */
+			if( $meth->getDeclaringClass()->getName() != $ref->getName() )
+			{
+				continue;
+			}
+
       $name = $meth->getName();
 
       /* Skip magic methods and anything marked as non-api. */
